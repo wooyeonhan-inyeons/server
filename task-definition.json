@@ -5,13 +5,21 @@
       {
         "dnsSearchDomains": null,
         "environmentFiles": null,
-        "logConfiguration": null,
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "secretOptions": null,
+          "options": {
+            "awslogs-group": "/ecs/ecs-nest-task",
+            "awslogs-region": "ap-northeast-2",
+            "awslogs-stream-prefix": "ecs"
+          }
+        },
         "entryPoint": null,
         "portMappings": [
           {
-            "hostPort": 0,
+            "hostPort": 3000,
             "protocol": "tcp",
-            "containerPort": 80
+            "containerPort": 3000
           }
         ],
         "command": null,
@@ -25,11 +33,11 @@
         "workingDirectory": null,
         "secrets": null,
         "dockerSecurityOptions": null,
-        "memory": 512,
-        "memoryReservation": null,
+        "memory": null,
+        "memoryReservation": 512,
         "volumesFrom": [],
         "stopTimeout": null,
-        "image": "976633778115.dkr.ecr.ap-northeast-2.amazonaws.com/ecs-test:latest",
+        "image": "976633778115.dkr.ecr.ap-northeast-2.amazonaws.com/ecs-test",
         "startTimeout": null,
         "firelensConfiguration": null,
         "dependsOn": null,
@@ -46,24 +54,42 @@
         "dockerLabels": null,
         "systemControls": null,
         "privileged": null,
-        "name": "wi-httpd-test-container"
+        "name": "ecs-nest-container"
       }
     ],
     "placementConstraints": [],
-    "memory": "750",
+    "memory": "900",
     "taskRoleArn": null,
     "compatibilities": [
       "EXTERNAL",
       "EC2"
     ],
-    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:976633778115:task-definition/wi-ecs-test:1",
-    "family": "wi-ecs-test",
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:976633778115:task-definition/ecs-nest-task:1",
+    "family": "ecs-nest-task",
     "requiresAttributes": [
       {
         "targetId": null,
         "targetType": null,
         "value": null,
+        "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+      },
+      {
+        "targetId": null,
+        "targetType": null,
+        "value": null,
         "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+        "targetId": null,
+        "targetType": null,
+        "value": null,
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+        "targetId": null,
+        "targetType": null,
+        "value": null,
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
       }
     ],
     "pidMode": null,
