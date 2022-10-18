@@ -8,7 +8,7 @@ COPY . .
 # 4
 RUN npm i
 # 5
-RUN npm build
+RUN npm run build
 
 # STEP 2
 #6
@@ -20,4 +20,4 @@ ENV NODE_ENV production
 #9
 COPY --from=builder /app ./
 #10
-CMD ["npm","start:prod"]
+CMD ["npm","run","start:prod"]
