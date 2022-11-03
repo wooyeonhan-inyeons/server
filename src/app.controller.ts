@@ -13,7 +13,7 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    Logger.log("/ 메인 로그입니다.");
+    Logger.log(`${process.env.DB_URL}`);
     return this.appService.getHello();
   }
 }
