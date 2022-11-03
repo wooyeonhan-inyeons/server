@@ -55,11 +55,11 @@ jobs:
 
     - name: Setting .env
       run: |
-        echo "DB_URL=${{ secrets.DB_URL }}" >> .env
-        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-        echo "DB_USER=${{ secrets.USER }}" >> .env
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "DB_URL=${{ secrets.DB_URL }}" >> .prod.env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .prod.env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .prod.env
+        echo "DB_USER=${{ secrets.USER }}" >> .prod.env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .prod.env
         cat .env
 
     - name: Configure AWS credentials
