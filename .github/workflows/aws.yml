@@ -60,7 +60,7 @@ jobs:
         echo "DB_NAME=${{ secrets.DB_NAME }}" >> .prod.env
         echo "DB_USER=${{ secrets.USER }}" >> .prod.env
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .prod.env
-        cat .env
+        cat .prod.env
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
