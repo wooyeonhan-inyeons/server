@@ -53,6 +53,15 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Setting .env
+      run: |
+        echo "DB_URL=${{ secrets.DB_URL }}" >> .env
+        echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "DB_USER=${{ secrets.USER }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        cat .env
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
