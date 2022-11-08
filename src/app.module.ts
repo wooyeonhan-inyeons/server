@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminModule } from './admin/admin.module';
 import { ConfigModule } from '@nestjs/config';
 import { Admin } from './admin/admin.entity';
+import { UserModule } from './user/user.module';
+import { User } from './user/user.entity';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -17,9 +19,10 @@ import { Admin } from './admin/admin.entity';
     username: `${process.env.DB_USER}`,
     password: `${process.env.DB_PASSWORD}`,
     database: `${process.env.DB_NAME}`,
-    entities: [Admin],
+    entities: [Admin, User
+    ],
     synchronize: true,
-  }), AdminModule],
+  }), AdminModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
