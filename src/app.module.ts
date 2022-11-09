@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Admin } from './admin/admin.entity';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -22,7 +23,7 @@ import { User } from './user/user.entity';
     entities: [Admin, User
     ],
     synchronize: true,
-  }), AdminModule, UserModule],
+  }), AdminModule, UserModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })

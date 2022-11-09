@@ -1,9 +1,13 @@
-import { Controller, Get, Logger } from '@nestjs/common';
+import { Controller, Request , Get, Logger, Post, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
+
+
 
   @Get("healthcheck")
   healthCheck(): string {
@@ -16,4 +20,7 @@ export class AppController {
     Logger.log(`${process.env.DB_URL}`);
     return this.appService.getHello();
   }
+
+
+
 }
