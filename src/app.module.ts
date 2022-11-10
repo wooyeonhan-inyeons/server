@@ -10,6 +10,7 @@ import { User } from './user/user.entity';
 import { PostingModule } from './posting/posting.module';
 import { Posting } from './posting/posting.entity';
 
+
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal: true,
