@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Post } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +7,8 @@ import { ConfigModule } from '@nestjs/config';
 import { Admin } from './admin/admin.entity';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
+import { PostingModule } from './posting/posting.module';
+import { Posting } from './posting/posting.entity';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -19,10 +21,10 @@ import { User } from './user/user.entity';
     username: `${process.env.DB_USER}`,
     password: `${process.env.DB_PASSWORD}`,
     database: `${process.env.DB_NAME}`,
-    entities: [Admin, User
+    entities: [Admin, User, Posting
     ],
     synchronize: true,
-  }), AdminModule, UserModule],
+  }), AdminModule, UserModule, PostingModule],
   controllers: [AppController],
   providers: [AppService],
 })
