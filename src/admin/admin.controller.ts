@@ -9,25 +9,25 @@ export class AdminController {
     ) { }
 
     // 조회
-    @Get('search')
+    @Get()
     search() {
         return this.adminService.findAll();
     }
 
-    @Get('search')
-    getOne(@Query('id') userID: string) {
+    @Get()
+    getOne(@Query('user_id') userID: string) {
         return this.adminService.findOne(userID);
     }
 
     // 수정
-    @Patch("/update")
-    patch(@Query('id') userID: string, @Body() updateData: UpdateUserDto) {
+    @Patch()
+    patch(@Query('user_id') userID: string, @Body() updateData: UpdateUserDto) {
         return this.adminService.update(userID, updateData);
     }
 
     // 삭제
-    @Delete('/delete')
-    remove(@Query('id') userID: string) {
+    @Delete()
+    remove(@Query('user_id') userID: string) {
         return this.adminService.deleteOne(userID);
     }
 }
