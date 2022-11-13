@@ -12,7 +12,7 @@ import { RolesGuard } from './guards/roles.guard';
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: `${process.env.JWT_SECRET}`,
       signOptions: { expiresIn: '24h' },
     }),
     PassportModule,
