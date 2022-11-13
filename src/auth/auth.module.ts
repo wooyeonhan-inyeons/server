@@ -11,17 +11,17 @@ import { RolesGuard } from './guards/roles.guard';
 
 @Module({
   imports: [
-    AdminModule,
-    PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '24h' },
     }),
+    PassportModule,
+    AdminModule,
   ],
   providers: [
-    AuthService,
-    LocalStrategy,
     JwtStrategy,
+    LocalStrategy,
+    AuthService,
     // {
     //   provide: APP_GUARD,
     //   useClass: RolesGuard,
