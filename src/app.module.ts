@@ -1,4 +1,10 @@
-import { Module, Post } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  Post,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,6 +16,7 @@ import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { PostingModule } from './posting/posting.module';
 import { Posting } from './posting/posting.entity';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -35,4 +42,11 @@ import { Posting } from './posting/posting.entity';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude({ path: '/healthcheck', method: RequestMethod.GET })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

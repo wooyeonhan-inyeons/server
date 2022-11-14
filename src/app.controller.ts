@@ -15,7 +15,6 @@ export class AppController {
 
   @Get('healthcheck')
   healthCheck(): string {
-    Logger.log('/healthcheck 헬스체크 로그입니다.');
     return this.appService.getHealthCheck();
   }
 
