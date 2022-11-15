@@ -10,29 +10,32 @@ import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { PostingModule } from './posting/posting.module';
 import { Posting } from './posting/posting.entity';
+import { FriendsModule } from './friends/friends.module';
+import { Friends } from './friends/friends.entity';
+import { FootprintModule } from './footprint/footprint.module';
+import { Footprint } from './footprint/footprint.entity';
+import { UserBookmarksModule } from './user_bookmarks/user_bookmarks.module';
+import { ImageModule } from './image/image.module';
+import { VideoModule } from './video/video.module';
+import { Controller } from './.controller';
+import { FlagModule } from './flag/flag.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'prod' ? '.prod.env' : '.dev.env',
-    }),
-    TypeOrmModule.forRoot({
-      type: 'mariadb',
-      host: `${process.env.DB_URL}`,
-      port: Number(process.env.DB_PORT),
-      username: `${process.env.DB_USER}`,
-      password: `${process.env.DB_PASSWORD}`,
-      database: `${process.env.DB_NAME}`,
-      entities: [Admin, User, Posting],
-      synchronize: true,
-    }),
-    AdminModule,
-    UserModule,
-    PostingModule,
-    AuthModule,
-  ],
-  controllers: [AppController],
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+    envFilePath: process.env.NODE_ENV === 'prod' ? '.prod.env' : '.dev.env',
+  }), TypeOrmModule.forRoot({
+    type: 'mariadb',
+    host: `${process.env.DB_URL}`,
+    port: Number(process.env.DB_PORT),
+    username: `${process.env.DB_USER}`,
+    password: `${process.env.DB_PASSWORD}`,
+    database: `${process.env.DB_NAME}`,
+    entities: [Admin, User, Posting, Friends, Footprint
+    ],
+    synchronize: true,
+  }), AdminModule, UserModule, PostingModule, FriendsModule, FootprintModule, AuthModule, UserBookmarksModule, ImageModule, VideoModule, FlagModule],
+  controllers: [AppController, Controller],
   providers: [AppService],
 })
 export class AppModule {}
