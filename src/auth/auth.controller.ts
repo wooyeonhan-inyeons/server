@@ -1,4 +1,11 @@
-import { Controller, UseGuards, Request, Post } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Request,
+  Post,
+  Body,
+  Query,
+} from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
@@ -12,7 +19,11 @@ export class AuthController {
   @Post('/adminLogin')
   @ApiCreatedResponse({ status: 200, type: ResponseAdminLoginDto })
   @UseGuards(LocalAuthGuard)
-  async login(@Request() req) {
+  async login(
+    @Request() req,
+    @Query('username') username: string,
+    @Query('password') password: string,
+  ) {
     return this.authService.adminLogin(req.user);
   }
 }
