@@ -21,6 +21,7 @@ export class Posting{
     @Column()
     location_id: number;
 
+    /*
     @Column()
     good_number: number;
 
@@ -29,7 +30,7 @@ export class Posting{
     
     @Column()
     angry_number: number;
-
+    */
 
     @Column()
     forFriend: number;

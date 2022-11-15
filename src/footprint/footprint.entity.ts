@@ -10,7 +10,7 @@ export class Footprint{
     @JoinColumn(
         {name: "user_id", referencedColumnName: "user_id"}
     )
-    user3: User;
+    user: User;
 
     @ManyToMany(()=>Posting)
     @JoinColumn(

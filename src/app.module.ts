@@ -1,4 +1,10 @@
-import { Module, Post } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  Post,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,11 +23,11 @@ import { Footprint } from './footprint/footprint.entity';
 import { UserBookmarksModule } from './user_bookmarks/user_bookmarks.module';
 import { ImageModule } from './image/image.module';
 import { VideoModule } from './video/video.module';
-import { Controller } from './.controller';
 import { FlagModule } from './flag/flag.module';
 import { User_bookmarks } from './user_bookmarks/user_bookmarks.entity';
 import { Image } from './image/image.entity';
 import { Video } from './video/video.entity';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -38,7 +44,14 @@ import { Video } from './video/video.entity';
     ],
     synchronize: true,
   }), AdminModule, UserModule, PostingModule, FriendsModule, FootprintModule, AuthModule, UserBookmarksModule, ImageModule, VideoModule, FlagModule],
-  controllers: [AppController, Controller],
+  controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .exclude({ path: '/healthcheck', method: RequestMethod.GET })
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}

@@ -10,7 +10,7 @@ export class Image{
     @JoinColumn(
         {name: "post_id", referencedColumnName: "post_id"}
     )
-    posting2: Posting;
+    posting: Posting;
 
     @Column()
     img_url: string;
