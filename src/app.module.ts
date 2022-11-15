@@ -19,6 +19,9 @@ import { ImageModule } from './image/image.module';
 import { VideoModule } from './video/video.module';
 import { Controller } from './.controller';
 import { FlagModule } from './flag/flag.module';
+import { User_bookmarks } from './user_bookmarks/user_bookmarks.entity';
+import { Image } from './image/image.entity';
+import { Video } from './video/video.entity';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -31,7 +34,7 @@ import { FlagModule } from './flag/flag.module';
     username: `${process.env.DB_USER}`,
     password: `${process.env.DB_PASSWORD}`,
     database: `${process.env.DB_NAME}`,
-    entities: [Admin, User, Posting, Friends, Footprint
+    entities: [Admin, User, Posting, Friends, Footprint, User_bookmarks, Image, Video,
     ],
     synchronize: true,
   }), AdminModule, UserModule, PostingModule, FriendsModule, FootprintModule, AuthModule, UserBookmarksModule, ImageModule, VideoModule, FlagModule],

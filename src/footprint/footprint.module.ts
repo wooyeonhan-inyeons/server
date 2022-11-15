@@ -8,6 +8,6 @@ import {Footprint} from './footprint.entity';
   controllers: [FootprintController],
   providers: [FootprintService]
 })
-export class footprintModule {}
+export class FootprintModule {}
 
 
