@@ -1,21 +1,18 @@
-import {Entity, Column, PrimaryColumn, ManyToMany, JoinColumn} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { Posting } from 'src/posting/posting.entity';
 @Entity()
-export class Footprint{
-    @PrimaryColumn("uuid")
-    footprint_id: string;
+export class Footprint {
+  @PrimaryGeneratedColumn('uuid')
+  footprint_id!: string;
 
-    @ManyToMany(()=>User)
-    @JoinColumn(
-        {name: "user_id", referencedColumnName: "user_id"}
-    )
-    user: User;
+  @ManyToOne(() => User, (user) => user.user_id, {
+    orphanedRowAction: 'delete',
+  })
+  user_id!: User;
 
-    @ManyToMany(()=>Posting)
-    @JoinColumn(
-        {name: "post_id", referencedColumnName: "post_id"}
-    )
-    posting: Posting;
+  @ManyToOne(() => Posting, (posting) => posting.post_id, {
+    orphanedRowAction: 'delete',
+  })
+  post_id!: Posting;
 }
-

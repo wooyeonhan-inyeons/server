@@ -1,17 +1,23 @@
-import {Entity, Column, PrimaryColumn,ManyToOne,JoinColumn} from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Posting } from 'src/posting/posting.entity';
 
 @Entity()
-export class Image{
-    @PrimaryColumn("uuid")
-    img_id: string;
+export class Image {
+  @PrimaryGeneratedColumn('uuid')
+  img_id!: string;
 
-    @ManyToOne(()=>Posting)
-    @JoinColumn(
-        {name: "post_id", referencedColumnName: "post_id"}
-    )
-    posting: Posting;
+  @ManyToOne(() => Posting, (posting) => posting.post_id, {
+    orphanedRowAction: 'delete',
+  })
+  //   @JoinColumn({ name: 'post_id', referencedColumnName: 'post_id' })
+  posting!: Posting;
 
-    @Column()
-    img_url: string;
+  @Column()
+  img_url!: string;
 }

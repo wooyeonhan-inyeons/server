@@ -20,30 +20,57 @@ import { FriendsModule } from './friends/friends.module';
 import { Friends } from './friends/friends.entity';
 import { FootprintModule } from './footprint/footprint.module';
 import { Footprint } from './footprint/footprint.entity';
-import { UserBookmarksModule } from './user_bookmarks/user_bookmarks.module';
 import { ImageModule } from './image/image.module';
 import { VideoModule } from './video/video.module';
-import { FlagModule } from './flag/flag.module';
-import { User_bookmarks } from './user_bookmarks/user_bookmarks.entity';
 import { Image } from './image/image.entity';
 import { Video } from './video/video.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
+import { EmotionModule } from './emotion/emotion.module';
+import { Emotion } from './emotion/emotion.entity';
+import { ReportModule } from './report/report.module';
+import { Report } from './report/report.entity';
+import { BookmarkModule } from './bookmark/bookmark.module';
+import { Bookmark } from './bookmark/bookmark.entity';
 
 @Module({
-  imports: [ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: process.env.NODE_ENV === 'prod' ? '.prod.env' : '.dev.env',
-  }), TypeOrmModule.forRoot({
-    type: 'mariadb',
-    host: `${process.env.DB_URL}`,
-    port: Number(process.env.DB_PORT),
-    username: `${process.env.DB_USER}`,
-    password: `${process.env.DB_PASSWORD}`,
-    database: `${process.env.DB_NAME}`,
-    entities: [Admin, User, Posting, Friends, Footprint, User_bookmarks, Image, Video,
-    ],
-    synchronize: true,
-  }), AdminModule, UserModule, PostingModule, FriendsModule, FootprintModule, AuthModule, UserBookmarksModule, ImageModule, VideoModule, FlagModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'prod' ? '.prod.env' : '.dev.env',
+    }),
+    TypeOrmModule.forRoot({
+      type: 'mariadb',
+      host: `${process.env.DB_URL}`,
+      port: Number(process.env.DB_PORT),
+      username: `${process.env.DB_USER}`,
+      password: `${process.env.DB_PASSWORD}`,
+      database: `${process.env.DB_NAME}`,
+      entities: [
+        Admin,
+        User,
+        Posting,
+        Friends,
+        Footprint,
+        Image,
+        Video,
+        Emotion,
+        Report,
+        Bookmark,
+      ],
+      synchronize: true,
+    }),
+    AdminModule,
+    UserModule,
+    PostingModule,
+    FriendsModule,
+    FootprintModule,
+    AuthModule,
+    ImageModule,
+    VideoModule,
+    EmotionModule,
+    ReportModule,
+    BookmarkModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

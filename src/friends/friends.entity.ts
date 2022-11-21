@@ -1,33 +1,34 @@
-import {Entity, Column, PrimaryColumn, ManyToOne, JoinColumn} from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from 'src/user/user.entity';
 
 @Entity()
-export class Friends{
-    @PrimaryColumn("uuid")
-    friend_id: string;
+export class Friends {
+  @PrimaryGeneratedColumn('uuid')
+  friend_id!: string;
 
-    /*@ManyToOne(() => User, (user) => user.user_id)
+  /*@ManyToOne(() => User, (user) => user.user_id)
     @JoinColumn(
         user: User;
     )*/
 
-    @ManyToOne(() => User)
-    @JoinColumn(
-        {name: "friend_one", referencedColumnName: "user_id"}
-    )
-    user1: User;
-    
+  @ManyToOne(() => User, (user) => user.user_id, {
+    orphanedRowAction: 'delete',
+  })
+  //   @JoinColumn({ name: 'user_id_1', referencedColumnName: 'user_id' })
+  user_1!: User;
 
-    @ManyToOne(() => User)
-    @JoinColumn(
-        {name: "friend_two", referencedColumnName: "user_id"}
-    )
-    user2: User;
+  @ManyToOne(() => User, (user) => user.user_id, {
+    orphanedRowAction: 'delete',
+  })
+  //   @JoinColumn({ name: 'user_id_2', referencedColumnName: 'user_id' })
+  user_2!: User;
 
-    @Column()
-    relation_type: number;
-
-
+  @Column()
+  relation_type!: number;
 }
-
-
