@@ -9,6 +9,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './guards/roles.guard';
 import { ConfigService } from '@nestjs/config';
+import { KakaoStrategy } from './strategies/kakao.strategy';
+import { UserModule } from 'src/user/user.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/user/user.entity';
 
 @Module({
   imports: [
@@ -23,10 +27,13 @@ import { ConfigService } from '@nestjs/config';
     }),
     PassportModule,
     AdminModule,
+    UserModule,
+    TypeOrmModule.forFeature([User])
   ],
   providers: [
     JwtStrategy,
     LocalStrategy,
+    KakaoStrategy,
     AuthService,
     // {
     //   provide: APP_GUARD,
