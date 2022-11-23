@@ -1,4 +1,11 @@
 import { Controller } from '@nestjs/common';
 
 @Controller('friends')
-export class FriendsController {}
+export class FriendsController {
+
+    constructor(
+        
+    ){
+
+    }
+}
