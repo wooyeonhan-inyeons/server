@@ -29,7 +29,7 @@ export class AuthService {
   }
 
   async adminLogin(user: any) {
-    const payload = { id: user.id, roles: Role.Admin };
+    const payload = { id: user.id, role: Role.Admin };
     return {
       access_token: this.jwtService.sign(payload),
     };
