@@ -2,6 +2,7 @@ import { IsEmail } from 'class-validator';
 import { Bookmark } from 'src/bookmark/bookmark.entity';
 import { Emotion } from 'src/emotion/emotion.entity';
 import { Footprint } from 'src/footprint/footprint.entity';
+import { Friends } from 'src/friends/friends.entity';
 import { Posting } from 'src/posting/posting.entity';
 import { Report } from 'src/report/report.entity';
 import {
@@ -28,6 +29,12 @@ export class User {
 
   @CreateDateColumn()
   created_at!: Date;
+
+  @OneToMany(()=>Friends, (friends)=>friends.following)
+  followers: Friends[];
+
+  @OneToMany(()=>Friends, (friends)=>friends.follower)
+  following: Friends[];
 
   // @OneToMany(() => Emotion, (emotion) => emotion.post_id)
   // emotion_posts: Emotion[];

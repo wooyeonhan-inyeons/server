@@ -16,18 +16,17 @@ export class Friends {
     @JoinColumn(
         user: User;
     )*/
-
   @ManyToOne(() => User, (user) => user.user_id, {
     orphanedRowAction: 'delete',
   })
   //   @JoinColumn({ name: 'user_id_1', referencedColumnName: 'user_id' })
-  user_1!: User;
+  follower!: User;
 
   @ManyToOne(() => User, (user) => user.user_id, {
     orphanedRowAction: 'delete',
   })
   //   @JoinColumn({ name: 'user_id_2', referencedColumnName: 'user_id' })
-  user_2!: User;
+  following!: User;
 
   @Column()
   relation_type!: number;
