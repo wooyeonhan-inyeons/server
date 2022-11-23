@@ -17,8 +17,8 @@ import { Role } from 'src/libs/enums/role.enum';
 import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AdminService } from './admin.service';
-import { RequestCreateUserDto } from './dto/RequestCreateUser.dto';
-import { RequestUpdateUserDto } from './dto/RequestUpdateUser.dto';
+import { RequestCreateUserDto } from '../user/dto/RequestCreateUser.dto';
+import { RequestUpdateUserDto } from 'src/user/dto/RequestUpdateUser.dto';
 import { ResponseReadUserDto } from './dto/ResponseReadUser.dto';
 
 @ApiTags('admin')

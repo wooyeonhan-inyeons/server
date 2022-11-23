@@ -1,3 +1,4 @@
+import { IsEmail } from 'class-validator';
 import { Bookmark } from 'src/bookmark/bookmark.entity';
 import { Emotion } from 'src/emotion/emotion.entity';
 import { Footprint } from 'src/footprint/footprint.entity';
@@ -18,8 +19,12 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   user_id!: string;
 
-  @Column('varchar', { length: 50 })
+  @Column()
   name!: string;
+
+  @Column()
+  @IsEmail({}, { message: 'Incorrect email' })
+  email!: string;
 
   @CreateDateColumn()
   created_at!: Date;
