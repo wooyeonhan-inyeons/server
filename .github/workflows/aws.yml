@@ -65,6 +65,7 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .prod.env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .prod.env
           echo "KAKAO_CALLBACK_URL=${{ secrets.KAKAO_CALLBACK_URL }}" >> .prod.env
+          echo "CLIENT_URL=${{ secrets.CLIENT_URL }}" >> .prod.env
           cat .prod.env
 
       - name: Configure AWS credentials
