@@ -12,11 +12,11 @@ export class Video {
   @PrimaryGeneratedColumn('uuid')
   video_id!: string;
 
-  @ManyToOne(() => Posting, (posting) => posting.post_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => Posting, (posting) => posting.video, {
+    onDelete: "CASCADE",
   })
   //   @JoinColumn({ name: 'post_id', referencedColumnName: 'post_id' })
-  posting!: Posting;
+  post_id!: Posting;
 
   @Column()
   video_url!: string;

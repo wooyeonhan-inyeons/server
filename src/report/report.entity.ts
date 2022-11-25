@@ -9,13 +9,13 @@ export class Report {
   @Column()
   report_type!: number;
 
-  @ManyToOne(() => User, (user) => user.user_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => User, (user) => user.report, {
+    onDelete: "CASCADE",
   })
   user_id!: User;
 
-  @ManyToOne(() => Posting, (posting) => posting.post_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => Posting, (posting) => posting.report, {
+    onDelete: "CASCADE",
   })
   post_id!: Posting;
 }
