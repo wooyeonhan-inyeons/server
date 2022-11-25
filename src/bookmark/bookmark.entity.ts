@@ -6,13 +6,13 @@ export class Bookmark {
   @PrimaryGeneratedColumn('uuid')
   bookmark_id!: string;
 
-  @ManyToOne(() => User, (user) => user.user_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => User, (user) => user.bookmark, {
+    onDelete: "CASCADE",
   })
   user_id!: User;
 
-  @ManyToOne(() => Posting, (posting) => posting.post_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => Posting, (posting) => posting.bookmark, {
+    onDelete: "CASCADE",
   })
   post_id!: Posting;
 }
