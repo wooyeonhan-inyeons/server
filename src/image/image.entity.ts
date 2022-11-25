@@ -12,11 +12,11 @@ export class Image {
   @PrimaryGeneratedColumn('uuid')
   img_id!: string;
 
-  @ManyToOne(() => Posting, (posting) => posting.post_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => Posting, (posting) => posting.image, {
+    onDelete: "CASCADE",
   })
   //   @JoinColumn({ name: 'post_id', referencedColumnName: 'post_id' })
-  posting!: Posting;
+  post_id!: Posting;
 
   @Column()
   img_url!: string;

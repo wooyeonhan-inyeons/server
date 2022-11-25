@@ -9,13 +9,13 @@ export class Emotion {
   @Column()
   emotion_type!: number;
 
-  @ManyToOne(() => User, (user) => user.user_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => User, (user) => user.emotion, {
+    onDelete: "CASCADE",
   })
   user_id!: User;
 
-  @ManyToOne(() => Posting, (posting) => posting.post_id, {
-    orphanedRowAction: 'delete',
+  @ManyToOne(() => Posting, (posting) => posting.emotion, {
+    onDelete: "CASCADE",
   })
   post_id!: Posting;
 }

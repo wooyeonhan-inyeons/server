@@ -1,3 +1,4 @@
+import { Post } from '@nestjs/common';
 import { IsEmail } from 'class-validator';
 import { Bookmark } from 'src/bookmark/bookmark.entity';
 import { Emotion } from 'src/emotion/emotion.entity';
@@ -13,6 +14,7 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity()
@@ -30,21 +32,38 @@ export class User {
   @CreateDateColumn()
   created_at!: Date;
 
-  @OneToMany(()=>Friends, (friends)=>friends.following)
-  followers: Friends[];
+  @OneToMany(()=>Friends, (friends)=>friends.following,{
+    cascade: true
+  })
+  follower: Friends[];
 
-  @OneToMany(()=>Friends, (friends)=>friends.follower)
+  @OneToMany(()=>Friends, (friends)=>friends.follower,{
+    cascade: true
+  })
   following: Friends[];
 
-  // @OneToMany(() => Emotion, (emotion) => emotion.post_id)
-  // emotion_posts: Emotion[];
+  @OneToMany(() => Emotion, (emotion) => emotion.user_id,{
+    cascade: true
+  })
+  emotion: Emotion[];
 
-  // @OneToMany(() => Report, (report) => report.report_id)
-  // report_posts: Report[];
+  @OneToMany(() => Report, (report) => report.user_id,{
+    cascade: true
+  })
+  report: Report[];
 
-  // @OneToMany(() => Footprint, (footprint) => footprint.post_id)
-  // footprint: Footprint[];
+  @OneToMany(() => Footprint, (footprint) => footprint.user_id, {
+    cascade: true
+  })
+  footprint: Footprint[];
 
-  // @OneToMany(() => Bookmark, (bookmark) => bookmark.post_id)
-  // bookmark_posts: Bookmark[];
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user_id, {
+    cascade: true
+  })
+  bookmark: Bookmark[];
+
+  @OneToMany(() => Posting, (post) => post.user_id, {
+    cascade: true
+  })
+  post: Posting[];
 }

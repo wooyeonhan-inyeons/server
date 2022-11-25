@@ -34,39 +34,39 @@ export class Posting {
   @Column({ type: 'point' })
   location_coord!: Point;
 
-  @ManyToOne(() => User, (user) => user.user_id, {
+  @ManyToOne(() => User, (user) => user.post, {
     //유저가 삭제되면 모든 포스트는 삭제된다.
-    orphanedRowAction: 'delete',
+    onDelete: "CASCADE",
   })
-  user!: User;
+  user_id!: User;
 
-  @OneToMany(() => Image, (image) => image.img_url, {
+  @OneToMany(() => Image, (image) => image.post_id, {
     cascade: true,
   })
-  image_urls: Image[];
+  image: Image[];
 
-  @OneToMany(() => Video, (video) => video.video_url, {
+  @OneToMany(() => Video, (video) => video.post_id, {
     cascade: true,
   })
-  video_urls: Video[];
+  video: Video[];
 
-  @OneToMany(() => Footprint, (footprint) => footprint.user_id, {
+  @OneToMany(() => Footprint, (footprint) => footprint.post_id, {
     cascade: true,
   })
   footprint: Footprint[];
 
-  @OneToMany(() => Emotion, (emotion) => emotion.user_id, {
+  @OneToMany(() => Emotion, (emotion) => emotion.post_id, {
     cascade: true,
   })
-  emotion_users: Emotion[];
+  emotion: Emotion[];
 
-  @OneToMany(() => Report, (report) => report.user_id, {
+  @OneToMany(() => Report, (report) => report.post_id, {
     cascade: true,
   })
-  report_users: Report[];
+  report: Report[];
 
-  @OneToMany(() => Bookmark, (bookmark) => bookmark.user_id, {
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.post_id, {
     cascade: true,
   })
-  bookmark_users: Bookmark[];
+  bookmark: Bookmark[];
 }
