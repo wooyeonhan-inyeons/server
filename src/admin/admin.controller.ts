@@ -20,6 +20,7 @@ import { AdminService } from './admin.service';
 import { RequestCreateUserDto } from '../user/dto/RequestCreateUser.dto';
 import { RequestUpdateUserDto } from 'src/user/dto/RequestUpdateUser.dto';
 import { ResponseReadUserDto } from './dto/ResponseReadUser.dto';
+import { ResponseGetUserATDto } from './dto/ResponseGetUserAT.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -35,45 +36,56 @@ export class AdminController {
   @Get('/all')
   @Roles([Role.Admin])
   async login(@Request() req) {
-    return this.adminService.findAll();
+    return await this.adminService.findAll();
   }
 
   // 생성
   @Post('/user')
   @Roles([Role.Admin])
-  createUser(@Body() createUserData: RequestCreateUserDto) {
-    return this.userService.create(createUserData);
+  async createUser(@Body() createUserData: RequestCreateUserDto) {
+    return await this.userService.create(createUserData);
   }
 
   // 조회
   @Get('/user/all')
   @ApiCreatedResponse({ status: 200, type: ResponseReadUserDto, isArray: true })
   @Roles([Role.Admin])
-  getUserAll(): Promise<User[]> {
-    return this.userService.findAll();
+  async getUserAll(): Promise<User[]> {
+    return await this.userService.findAll();
   }
 
   @Get('/user')
   @ApiCreatedResponse({ status: 200, type: ResponseReadUserDto })
   @Roles([Role.Admin])
-  getUser(@Query('user_id') userID: string) {
-    return this.userService.find(userID);
+  async getUser(@Query('user_id') userID: string) {
+    return await this.userService.findOne(userID);
+  }
+
+  @Get('/userAT')
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetUserATDto,
+    description: '해당 유저의 access_token을 얻을수있습니다.',
+  })
+  @Roles([Role.Admin])
+  async getUserAT(@Query('user_id') userID: string) {
+    return await this.adminService.getUserAccessToken(userID);
   }
 
   // 수정
   @Patch('/user')
   @Roles([Role.Admin])
-  patchUser(
+  async patchUser(
     @Query('user_id') userID: string,
     @Body() updateData: RequestUpdateUserDto,
   ) {
-    return this.userService.update(userID, updateData);
+    return await this.userService.update(userID, updateData);
   }
 
   // 삭제
   @Delete('/user')
   @Roles([Role.Admin])
-  removeUser(@Query('user_id') userID: string) {
-    return this.userService.delete(userID);
+  async removeUser(@Query('user_id') userID: string) {
+    return await this.userService.delete(userID);
   }
 }

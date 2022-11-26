@@ -9,4 +9,8 @@ export class RequestUpdateUserDto {
   @ApiProperty()
   @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsString()
+  message: string;
 }

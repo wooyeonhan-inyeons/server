@@ -16,7 +16,7 @@ export class AuthService {
     private userRepository: Repository<User>,
     private adminService: AdminService,
     private jwtService: JwtService,
-    private userService: UserService
+    private userService: UserService,
   ) {}
 
   async validateAdmin(id: string, pw: string): Promise<any> {
@@ -37,23 +37,35 @@ export class AuthService {
 
   async userLogin(user: any) {
     let userInfo = await this.userRepository.findOneBy({
-      email: user.email
-    })
+      email: user.email,
+    });
 
-    if(userInfo){ // 유저정보가 존재할 시
-      const payload = { user_id: userInfo.user_id, name: userInfo.name, email: userInfo.email, role: Role.User };
-      
+    if (userInfo) {
+      // 유저정보가 존재할 시
+      const payload = {
+        user_id: userInfo.user_id,
+        name: userInfo.name,
+        email: userInfo.email,
+        role: Role.User,
+      };
+
       return {
         access_token: this.jwtService.sign(payload),
       };
-    }
-    else{ // 신규 유저
+    } else {
+      // 신규 유저
       const new_user = await this.userService.create({
         name: user.name,
-        email: user.email
-      })
-      const payload = { user_id: new_user.identifiers[0].user_id, name: user.name, email: user.email, role: Role.User };
-      
+        email: user.email,
+        message: '',
+      });
+      const payload = {
+        user_id: new_user.identifiers[0].user_id,
+        name: user.name,
+        email: user.email,
+        role: Role.User,
+      };
+
       return {
         access_token: this.jwtService.sign(payload),
       };

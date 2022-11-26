@@ -9,4 +9,8 @@ export class RequestCreateUserDto {
   @ApiProperty()
   @IsEmail()
   email: string;
+
+  @ApiProperty()
+  @IsString()
+  message: string;
 }
