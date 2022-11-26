@@ -16,12 +16,24 @@ export class UserService {
     return await this.usersRepository.find();
   }
 
-  async find(user_id: string): Promise<User> {
-    return await this.usersRepository.findOne({
-      where: {
-        user_id,
-      },
-    });
+  async findOne(user_id: string): Promise<User> {
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.user_id = :user_id', { user_id })
+      // .andWhere('following.relation_type = 1')
+      .loadRelationCountAndMap(
+        'user.follower_count',
+        'user.follower',
+        'follower',
+        (qb) => qb.where('follower.relation_type = 1'),
+      )
+      .loadRelationCountAndMap(
+        'user.following_count',
+        'user.following',
+        'following',
+        (qb) => qb.where('following.relation_type = 1'),
+      )
+      .getOne();
   }
 
   async update(user_id: string, userData: RequestUpdateUserDto) {
@@ -39,7 +51,7 @@ export class UserService {
   }
 
   async create(userData: RequestCreateUserDto) {
-    const user = this.usersRepository.create(userData)
+    const user = this.usersRepository.create(userData);
     return await this.usersRepository.insert(user);
   }
 }

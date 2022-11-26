@@ -8,5 +8,11 @@ export class ResponseReadUserDto {
   name: string;
 
   @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  message: string;
+
+  @ApiProperty()
   created_at: Date;
 }

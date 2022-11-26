@@ -29,41 +29,44 @@ export class User {
   @IsEmail({}, { message: 'Incorrect email' })
   email!: string;
 
+  @Column()
+  message: string;
+
   @CreateDateColumn()
   created_at!: Date;
 
-  @OneToMany(()=>Friends, (friends)=>friends.following,{
-    cascade: true
+  @OneToMany(() => Friends, (friends) => friends.following, {
+    cascade: true,
   })
   follower: Friends[];
 
-  @OneToMany(()=>Friends, (friends)=>friends.follower,{
-    cascade: true
+  @OneToMany(() => Friends, (friends) => friends.follower, {
+    cascade: true,
   })
   following: Friends[];
 
-  @OneToMany(() => Emotion, (emotion) => emotion.user_id,{
-    cascade: true
+  @OneToMany(() => Emotion, (emotion) => emotion.user_id, {
+    cascade: true,
   })
   emotion: Emotion[];
 
-  @OneToMany(() => Report, (report) => report.user_id,{
-    cascade: true
+  @OneToMany(() => Report, (report) => report.user_id, {
+    cascade: true,
   })
   report: Report[];
 
   @OneToMany(() => Footprint, (footprint) => footprint.user_id, {
-    cascade: true
+    cascade: true,
   })
   footprint: Footprint[];
 
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user_id, {
-    cascade: true
+    cascade: true,
   })
   bookmark: Bookmark[];
 
   @OneToMany(() => Posting, (post) => post.user_id, {
-    cascade: true
+    cascade: true,
   })
   post: Posting[];
 }

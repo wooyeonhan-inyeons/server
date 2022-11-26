@@ -1,9 +1,7 @@
+import { IsEmail, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ResponseReadAllUserDto {
-  @ApiProperty()
-  userId: string;
-
+export class ResponseGetUserDto {
   @ApiProperty()
   name: string;
 
@@ -15,4 +13,10 @@ export class ResponseReadAllUserDto {
 
   @ApiProperty()
   created_at: Date;
+
+  @ApiProperty()
+  follower_count: number;
+
+  @ApiProperty()
+  following_count: number;
 }

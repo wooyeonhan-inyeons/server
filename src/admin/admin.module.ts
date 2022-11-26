@@ -4,9 +4,26 @@ import { Admin } from './admin.entity';
 import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { UserModule } from 'src/user/user.module';
+import { User } from 'src/user/user.entity';
+import { AuthModule } from 'src/auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Admin]), UserModule],
+  imports: [
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: () => ({
+        secret: process.env.JWT_SECRET,
+        signOptions: {
+          expiresIn: '24h',
+        },
+      }),
+    }),
+    TypeOrmModule.forFeature([Admin]),
+    TypeOrmModule.forFeature([User]),
+    UserModule,
+  ],
   providers: [AdminService],
   controllers: [AdminController],
   exports: [AdminService],
