@@ -18,6 +18,25 @@ export class FriendsService {
     private userRepository: Repository<User>,
   ) {}
 
+  async getAllFriendList() {
+    return await this.friendsRepository.find({
+      relations: {
+        follower: true,
+        following: true,
+      },
+      select: {
+        follower: {
+          name: true,
+        },
+        following: {
+          name: true,
+        },
+        friend_id: true,
+        relation_type: true,
+      },
+    });
+  }
+
   //친구 신청
   async createRelation(follower_uuid: string, following_uuid: string) {
     const follower = await this.userRepository.findOneBy({
@@ -222,7 +241,7 @@ export class FriendsService {
       friend_id,
     });
 
-    //실제 존재하는 관계인지 조회
+    //요청한 유저가 포함된 관계인지 조회
     if (!isFollower && !isFollowing)
       throw new BadRequestException({
         status: HttpStatus.BAD_REQUEST,
@@ -232,5 +251,23 @@ export class FriendsService {
     return await this.friendsRepository.delete({
       friend_id,
     });
+  }
+
+  async deleteFriendByFriendId(friend_id: string) {
+    return await this.friendsRepository.delete({
+      friend_id,
+    });
+  }
+
+  async updateRelation(friend_id: string, relation_type: number) {
+    const relation = await this.friendsRepository.findOne({
+      where: {
+        friend_id,
+      },
+    });
+
+    relation.relation_type = relation_type;
+
+    return await this.friendsRepository.save(relation);
   }
 }

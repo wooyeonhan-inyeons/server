@@ -14,5 +14,11 @@ export class ResponseReadAllUserDto {
   message: string;
 
   @ApiProperty()
+  follower_count: number;
+
+  @ApiProperty()
+  following_count: number;
+
+  @ApiProperty()
   created_at: Date;
 }
