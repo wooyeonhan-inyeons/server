@@ -4,11 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RequestUpdateUserDto {
   @ApiProperty()
   @IsString()
-  name: string;
+  user_id: string;
 
   @ApiProperty()
-  @IsEmail()
-  email: string;
+  @IsString()
+  name: string;
 
   @ApiProperty()
   @IsString()

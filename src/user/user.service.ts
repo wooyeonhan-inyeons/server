@@ -13,7 +13,22 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      // .andWhere('following.relation_type = 1')
+      .loadRelationCountAndMap(
+        'user.follower_count',
+        'user.follower',
+        'follower',
+        (qb) => qb.where('follower.relation_type = 1'),
+      )
+      .loadRelationCountAndMap(
+        'user.following_count',
+        'user.following',
+        'following',
+        (qb) => qb.where('following.relation_type = 1'),
+      )
+      .getMany();
   }
 
   async findOne(user_id: string): Promise<User> {
