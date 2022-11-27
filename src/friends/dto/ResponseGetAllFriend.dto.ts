@@ -34,11 +34,13 @@ class FollowingArrayDto {
 export class ResponseGetAllFriendDto {
   @ApiProperty({
     type: FollowerArrayDto,
+    isArray: true,
   })
   follower: FollowerArrayDto;
 
   @ApiProperty({
     type: FollowingArrayDto,
+    isArray: true,
   })
   following: FollowingArrayDto;
 }

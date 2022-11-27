@@ -8,6 +8,7 @@ import { User } from 'src/user/user.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { FriendsModule } from 'src/friends/friends.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
     TypeOrmModule.forFeature([Admin]),
     TypeOrmModule.forFeature([User]),
     UserModule,
+    FriendsModule,
   ],
   providers: [AdminService],
   controllers: [AdminController],
