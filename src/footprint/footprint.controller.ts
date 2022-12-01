@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Query } from '@nestjs/common';
 import { FootprintService } from './footprint.service';
 
 @Controller('footprint')
