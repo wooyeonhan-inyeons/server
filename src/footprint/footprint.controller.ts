@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req } from '@nestjs/common';
 import { FootprintService } from './footprint.service';
+import { ApiCreatedResponse } from '@nestjs/swagger';
 
 @Controller('footprint')
 export class FootprintController {
@@ -9,16 +10,21 @@ export class FootprintController {
 
     // 발자국 수 추가
     @Post()
-    async updateFootPrint(@Query() query) {
+    @ApiCreatedResponse({
+        status: 200,
+        type: CreateFootprintDto,
+        description: '발자국 수를 늘립니다.',
+    })
+    async updateFootPrint(@Req() req) {
         return await this.footprintService.addFootprint(
-            query.user_id,
-            query.post_id,
+            req.user.user_id,
+            req.post.post_id,
         );
     }
 
     // 발자국 수 조회
     @Get()
-    async getFootprints(@Query() query) {
-        return await this.footprintService.getFootprints(query.post_id);
+    async getFootprints(@Req() req) {
+        return await this.footprintService.getFootprints(req.post.post_id);
     }
 }
