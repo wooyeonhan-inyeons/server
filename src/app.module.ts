@@ -31,6 +31,7 @@ import { ReportModule } from './report/report.module';
 import { Report } from './report/report.entity';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { Bookmark } from './bookmark/bookmark.entity';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { Bookmark } from './bookmark/bookmark.entity';
     EmotionModule,
     ReportModule,
     BookmarkModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [AppService],
