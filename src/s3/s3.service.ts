@@ -12,7 +12,7 @@ export class S3Service {
       secretAccessKey: process.env.S3_SECRET_KEY,
       region: process.env.S3_REGION,
     });
-    console.log(process.env.S3_ACCESS_KEY);
+    // console.log(process.env.S3_ACCESS_KEY);
   }
 
   async uploadFile(files: Express.Multer.File[]) {
