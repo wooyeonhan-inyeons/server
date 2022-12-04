@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Patch,
   Post,
   Req,
@@ -39,10 +41,16 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async create(@Req() req, @Body() body: RequestCreateFriendDto) {
-    return await this.friendsService.createRelation(
-      req.user.user_id,
-      body.following_id,
-    );
+    return await this.friendsService
+      .createRelation(req.user.user_id, body.following_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Get()
@@ -53,16 +61,31 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getAllFriend(@Req() req) {
-    return await this.friendsService.getFriendsList(req.user.user_id);
+    return await this.friendsService
+      .getFriendsList(req.user.user_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Post('/accept')
   @Roles([Role.User])
   async acceptFriendRequest(@Req() req, @Body() body: RequestAcceptFriendDto) {
-    return await this.friendsService.acceptFriendRequest(
-      req.user.user_id,
-      body.friend_id,
-    );
+    return await this.friendsService
+      .acceptFriendRequest(req.user.user_id, body.friend_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Post('/decline')
@@ -71,10 +94,16 @@ export class FriendsController {
     @Req() req,
     @Body() body: RequestDeclineFriendDto,
   ) {
-    return await this.friendsService.declineFriendRequest(
-      req.user.user_id,
-      body.friend_id,
-    );
+    return await this.friendsService
+      .declineFriendRequest(req.user.user_id, body.friend_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Get('/request')
@@ -86,7 +115,16 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getFriendRequest(@Req() req) {
-    return await this.friendsService.getFriendRequestList(req.user.user_id);
+    return await this.friendsService
+      .getFriendRequestList(req.user.user_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Get('/requested')
@@ -98,15 +136,30 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getRequestedFriendList(@Req() req) {
-    return await this.friendsService.getRequestedFriendList(req.user.user_id);
+    return await this.friendsService
+      .getRequestedFriendList(req.user.user_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   @Delete()
   @Roles([Role.User])
   async deleteFriend(@Req() req, @Body() body: RequestDeleteFriendDto) {
-    return await this.friendsService.deleteFriend(
-      req.user.user_id,
-      body.friend_id,
-    );
+    return await this.friendsService
+      .deleteFriend(req.user.user_id, body.friend_id)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 }

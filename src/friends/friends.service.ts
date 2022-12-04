@@ -68,10 +68,11 @@ export class FriendsService {
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
       .where('friend.follower = :follower_uuid', { follower_uuid })
+      .orWhere('friend.follower = :following_uuid', { following_uuid })
       .andWhere('friend.following = :following_uuid', { following_uuid })
+      .orWhere('friend.following = :follower_uuid', { follower_uuid })
       .andWhere('friend.relation_type = 1')
       .getOne();
-
     if (isFriend != null)
       throw new BadRequestException({
         status: HttpStatus.BAD_REQUEST,
@@ -142,7 +143,6 @@ export class FriendsService {
       },
     });
 
-    console.log('dd', friend_request);
     //신청받은 사람이 아니면 못받음
     if (friend_request.following?.user_id != user_id)
       throw new BadRequestException({
@@ -269,5 +269,17 @@ export class FriendsService {
     relation.relation_type = relation_type;
 
     return await this.friendsRepository.save(relation);
+  }
+
+  async isFriend(follower_uuid: string, following_uuid: string) {
+    const isFriend = await this.friendsRepository
+      .createQueryBuilder('friend')
+      .where('friend.follower = :follower_uuid', { follower_uuid })
+      .orWhere('friend.follower = :following_uuid', { following_uuid })
+      .andWhere('friend.following = :following_uuid', { following_uuid })
+      .orWhere('friend.following = :follower_uuid', { follower_uuid })
+      .andWhere('friend.relation_type = 1')
+      .getOne();
+    return isFriend != null;
   }
 }

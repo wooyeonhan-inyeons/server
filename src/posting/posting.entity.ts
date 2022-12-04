@@ -4,15 +4,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   ManyToOne,
-  JoinColumn,
-  JoinTable,
   OneToMany,
 } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { Emotion } from 'src/emotion/emotion.entity';
 import { Report } from 'src/report/report.entity';
 import { Footprint } from 'src/footprint/footprint.entity';
-import { Point } from 'wkx';
 import { Bookmark } from 'src/bookmark/bookmark.entity';
 import { Image } from 'src/image/image.entity';
 import { Video } from 'src/video/video.entity';
@@ -31,12 +28,16 @@ export class Posting {
   @Column({ default: 0 })
   forFriend: number;
 
-  @Column({ type: 'point' })
-  location_coord!: Point;
+  @Column('double')
+  latitude: number;
+
+  @Column('double')
+  longitude: number;
 
   @ManyToOne(() => User, (user) => user.post, {
     //유저가 삭제되면 모든 포스트는 삭제된다.
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
+    nullable: false,
   })
   user_id!: User;
 
