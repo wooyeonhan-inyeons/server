@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Posting } from './posting.entity';
 import * as AWS from 'aws-sdk';
 import { S3Service } from 'src/s3/s3.service';
 import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/user.entity';
 import { Image } from 'src/image/image.entity';
 @Injectable()
 export class PostingService {
@@ -60,21 +64,26 @@ forFriend = 0 인 게시물 중에
 */
 
   async getNearPost(user_id: string, latitude: number, longitude: number) {
-    let query = this.postingRepository
+    let query = await this.postingRepository
       .createQueryBuilder('post')
       .leftJoin('post.user_id', 'user')
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
-      .where(
-        'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
-        { user_id },
-      )
-      .orWhere(
-        'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
-        { user_id },
-      )
-      .orWhere('post.forFriend = 0')
 
+      .where(
+        new Brackets((qb) => {
+          qb.where(
+            'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
+            { user_id },
+          )
+            .orWhere(
+              'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
+              { user_id },
+            )
+            .orWhere('post.forFriend = 0')
+            .orWhere('post.user_id = :user_id', { user_id });
+        }),
+      )
       .addSelect(
         `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
         'distance',
@@ -84,5 +93,68 @@ forFriend = 0 인 게시물 중에
       .getMany();
 
     return query;
+  }
+
+  async getPost(
+    user_id: string,
+    post_id: string,
+    latitude: number,
+    longitude: number,
+  ) {
+    let query = this.postingRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.user_id', 'user')
+      .leftJoin('user.following', 'following')
+      .leftJoin('user.follower', 'follower')
+      .leftJoinAndSelect('post.image', 'image')
+      .where('post.post_id=:post_id', { post_id })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where(
+            'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
+            { user_id },
+          )
+            .orWhere(
+              'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
+              { user_id },
+            )
+            .orWhere('post.forFriend = 0')
+            .orWhere('post.user_id = :user_id', { user_id });
+        }),
+      )
+
+      .addSelect(
+        `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
+        'distance',
+      )
+      .having(`distance <= ${0.05}`)
+      .orderBy('distance', 'ASC');
+
+    const result = await query.getOne();
+    const distance = (await query.getRawOne())?.distance;
+
+    if (result == null)
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        message: '50m 이내 게시물만 조회할 수 있습니다.',
+      });
+
+    return { ...result, distance };
+  }
+
+  async deletePost(user_id: string, post_id: string) {
+    let query = await this.postingRepository
+      .createQueryBuilder('post')
+      .where('post.user_id=:user_id', { user_id })
+      .andWhere('post.post_id=:post_id', { post_id })
+      .getOne();
+
+    if (query == null)
+      throw new BadRequestException({
+        status: HttpStatus.BAD_REQUEST,
+        message: '잘못된 요청입니다.',
+      });
+
+    return await this.postingRepository.delete({ post_id });
   }
 }

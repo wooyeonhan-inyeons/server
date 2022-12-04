@@ -7,13 +7,10 @@ import {
   Delete,
   UseGuards,
   Req,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiCreatedResponse,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
@@ -37,21 +34,44 @@ export class UserController {
   })
   @Roles([Role.User])
   async getOwnUser(@Req() req) {
-    return await this.userService.findOne(req.user.user_id);
+    return await this.userService.findOne(req.user.user_id).catch((err) => {
+      throw new HttpException(
+        {
+          message: err.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    });
   }
 
   // 수정
   @Patch()
   @Roles([Role.User])
   async patchUser(@Req() req, @Body() updateData: RequestUpdateUserDto) {
-    return await this.userService.update(req.user_id, updateData);
+    return await this.userService
+      .update(req.user_id, updateData)
+      .catch((err) => {
+        throw new HttpException(
+          {
+            message: err.message,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      });
   }
 
   // 삭제
   @Delete()
   @Roles([Role.User])
   async removeUser(@Req() req) {
-    return await this.userService.delete(req.user_id);
+    return await this.userService.delete(req.user_id).catch((err) => {
+      throw new HttpException(
+        {
+          message: err.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    });
   }
 
   @Get('search')
@@ -62,6 +82,13 @@ export class UserController {
   })
   @Roles([Role.User])
   async getUser(@Query('user_id') user_id: string) {
-    return await this.userService.findOne(user_id);
+    return await this.userService.findOne(user_id).catch((err) => {
+      throw new HttpException(
+        {
+          message: err.message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    });
   }
 }
