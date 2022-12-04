@@ -12,8 +12,7 @@ import { Posting } from 'src/posting/posting.entity';
     TypeOrmModule.forFeature([Posting]),
   ],
   controllers: [FootprintController],
-  providers: [FootprintService]
+  providers: [FootprintService],
+  exports: [FootprintService],
 })
-export class FootprintModule { }
-
-
+export class FootprintModule {}

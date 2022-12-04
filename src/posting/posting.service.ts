@@ -11,6 +11,7 @@ import * as AWS from 'aws-sdk';
 import { S3Service } from 'src/s3/s3.service';
 import { UserService } from 'src/user/user.service';
 import { Image } from 'src/image/image.entity';
+import { FootprintService } from 'src/footprint/footprint.service';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -20,13 +21,8 @@ export class PostingService {
     private postingRepository: Repository<Posting>,
     private s3Service: S3Service,
     private userService: UserService,
+    private footprintService: FootprintService,
   ) {}
-
-  async uploadTest(files: Express.Multer.File[]) {
-    const img_list = await this.s3Service.uploadFile(files);
-    console.log(img_list);
-    // await this.s3Service.uploadFile(file);
-  }
 
   async create(
     user_id: string,
@@ -69,7 +65,7 @@ forFriend = 0 인 게시물 중에
       .leftJoin('post.user_id', 'user')
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
-
+      // .leftJoin('post.footprint', 'footprint')
       .where(
         new Brackets((qb) => {
           qb.where(
@@ -91,7 +87,6 @@ forFriend = 0 인 게시물 중에
       .having(`distance <= ${0.5}`)
       .orderBy('distance', 'ASC')
       .getMany();
-
     return query;
   }
 
@@ -107,6 +102,7 @@ forFriend = 0 인 게시물 중에
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
       .leftJoinAndSelect('post.image', 'image')
+      .loadRelationCountAndMap('post.footprint_count', 'post.footprint')
       .where('post.post_id=:post_id', { post_id })
       .andWhere(
         new Brackets((qb) => {
@@ -136,8 +132,10 @@ forFriend = 0 인 게시물 중에
     if (result == null)
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
-        message: '50m 이내 게시물만 조회할 수 있습니다.',
+        message: '50m 이내 게시물만 조회할 수 있거나, 친구가 아닙니다.',
       });
+
+    await this.footprintService.addFootprint(user_id, post_id);
 
     return { ...result, distance };
   }
