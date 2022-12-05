@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Friends } from './friends.entity';
 @Injectable()
 export class FriendsService {
@@ -48,11 +48,20 @@ export class FriendsService {
 
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
-      .where('friend.follower = :follower_uuid', { follower_uuid })
-      .orWhere('friend.follower = :following_uuid', { following_uuid })
-      .andWhere('friend.following = :following_uuid', { following_uuid })
-      .orWhere('friend.following = :follower_uuid', { follower_uuid })
-      .andWhere('friend.relation_type = 1')
+      .where(
+        new Brackets((qb) => {
+          qb.where('friend.follower = :follower_uuid', { follower_uuid })
+            .andWhere('friend.follower = :following_uuid', { following_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
+      .orWhere(
+        new Brackets((qb) => {
+          qb.where('friend.following = :following_uuid', { following_uuid })
+            .andWhere('friend.following = :follower_uuid', { follower_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
       .getOne();
     if (isFriend != null)
       throw new BadRequestException({
@@ -237,11 +246,20 @@ export class FriendsService {
   async isFriend(follower_uuid: string, following_uuid: string) {
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
-      .where('friend.follower = :follower_uuid', { follower_uuid })
-      .orWhere('friend.follower = :following_uuid', { following_uuid })
-      .andWhere('friend.following = :following_uuid', { following_uuid })
-      .orWhere('friend.following = :follower_uuid', { follower_uuid })
-      .andWhere('friend.relation_type = 1')
+      .where(
+        new Brackets((qb) => {
+          qb.where('friend.follower = :follower_uuid', { follower_uuid })
+            .andWhere('friend.follower = :following_uuid', { following_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
+      .orWhere(
+        new Brackets((qb) => {
+          qb.where('friend.following = :following_uuid', { following_uuid })
+            .andWhere('friend.following = :follower_uuid', { follower_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
       .getOne();
     return isFriend != null;
   }
