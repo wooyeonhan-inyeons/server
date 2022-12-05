@@ -17,5 +17,6 @@ import { FootprintModule } from 'src/footprint/footprint.module';
   ],
   controllers: [PostingController],
   providers: [PostingService],
+  exports: [PostingService],
 })
 export class PostingModule {}
