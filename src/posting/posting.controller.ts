@@ -26,7 +26,6 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
 import { RequestDeletePostingDto } from './dto/RequestDeletePosting.dto';
-import { RequestGetPostByLocationDto } from './dto/RequestGetPostByLocation.dto';
 import { ResponseGetOnePostDto } from './dto/ResponseGetOnePost.dto';
 import { ResponseGetPostByLocation } from './dto/ResponseGetPostByLocation.dto';
 import { PostingService } from './posting.service';
@@ -133,12 +132,13 @@ export class PostingController {
   })
   @Roles([Role.User])
   async getPostByLocation(
-    @Body() body: RequestGetPostByLocationDto,
+    @Query('latitude') latitude: number,
+    @Query('longitude') longitude: number,
     @Req() req,
   ) {
     const user_id = req.user.user_id;
     return await this.postingService
-      .getNearPost(user_id, body.latitude, body.longitude)
+      .getNearPost(user_id, latitude, longitude)
       .catch((err) => {
         throw new HttpException(
           {
