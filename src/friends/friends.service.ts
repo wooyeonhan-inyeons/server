@@ -18,25 +18,6 @@ export class FriendsService {
     private userRepository: Repository<User>,
   ) {}
 
-  async getAllFriendList() {
-    return await this.friendsRepository.find({
-      relations: {
-        follower: true,
-        following: true,
-      },
-      select: {
-        follower: {
-          name: true,
-        },
-        following: {
-          name: true,
-        },
-        friend_id: true,
-        relation_type: true,
-      },
-    });
-  }
-
   //친구 신청
   async createRelation(follower_uuid: string, following_uuid: string) {
     const follower = await this.userRepository.findOneBy({
@@ -253,24 +234,6 @@ export class FriendsService {
     });
   }
 
-  async deleteFriendByFriendId(friend_id: string) {
-    return await this.friendsRepository.delete({
-      friend_id,
-    });
-  }
-
-  async updateRelation(friend_id: string, relation_type: number) {
-    const relation = await this.friendsRepository.findOne({
-      where: {
-        friend_id,
-      },
-    });
-
-    relation.relation_type = relation_type;
-
-    return await this.friendsRepository.save(relation);
-  }
-
   async isFriend(follower_uuid: string, following_uuid: string) {
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
@@ -281,5 +244,44 @@ export class FriendsService {
       .andWhere('friend.relation_type = 1')
       .getOne();
     return isFriend != null;
+  }
+
+  /* 어드민 전용 API */
+
+  async getAllFriend_Admin() {
+    return await this.friendsRepository.find({
+      relations: {
+        follower: true,
+        following: true,
+      },
+      select: {
+        follower: {
+          name: true,
+        },
+        following: {
+          name: true,
+        },
+        friend_id: true,
+        relation_type: true,
+      },
+    });
+  }
+
+  async deleteFriend_Admin(friend_id: string) {
+    return await this.friendsRepository.delete({
+      friend_id,
+    });
+  }
+
+  async updateRelation_Admin(friend_id: string, relation_type: number) {
+    const relation = await this.friendsRepository.findOne({
+      where: {
+        friend_id,
+      },
+    });
+
+    relation.relation_type = relation_type;
+
+    return await this.friendsRepository.save(relation);
   }
 }

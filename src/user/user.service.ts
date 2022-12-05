@@ -12,23 +12,9 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository
-      .createQueryBuilder('user')
-      // .andWhere('following.relation_type = 1')
-      .loadRelationCountAndMap(
-        'user.follower_count',
-        'user.follower',
-        'follower',
-        (qb) => qb.where('follower.relation_type = 1'),
-      )
-      .loadRelationCountAndMap(
-        'user.following_count',
-        'user.following',
-        'following',
-        (qb) => qb.where('following.relation_type = 1'),
-      )
-      .getMany();
+  async create(userData: RequestCreateUserDto) {
+    const user = this.usersRepository.create(userData);
+    return await this.usersRepository.insert(user);
   }
 
   async findOne(user_id: string): Promise<User> {
@@ -65,8 +51,24 @@ export class UserService {
     await this.usersRepository.delete(userID);
   }
 
-  async create(userData: RequestCreateUserDto) {
-    const user = this.usersRepository.create(userData);
-    return await this.usersRepository.insert(user);
+  /* Admin 전용 API */
+
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository
+      .createQueryBuilder('user')
+      // .andWhere('following.relation_type = 1')
+      .loadRelationCountAndMap(
+        'user.follower_count',
+        'user.follower',
+        'follower',
+        (qb) => qb.where('follower.relation_type = 1'),
+      )
+      .loadRelationCountAndMap(
+        'user.following_count',
+        'user.following',
+        'following',
+        (qb) => qb.where('following.relation_type = 1'),
+      )
+      .getMany();
   }
 }

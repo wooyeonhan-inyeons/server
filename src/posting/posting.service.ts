@@ -12,6 +12,7 @@ import { S3Service } from 'src/s3/s3.service';
 import { UserService } from 'src/user/user.service';
 import { Image } from 'src/image/image.entity';
 import { FootprintService } from 'src/footprint/footprint.service';
+import { RequestUpdatePostDto } from 'src/admin/dto/RequestUpdatePost.dto';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -153,6 +154,51 @@ forFriend = 0 인 게시물 중에
         message: '잘못된 요청입니다.',
       });
 
+    return await this.postingRepository.delete({ post_id });
+  }
+
+  /* Admin 전용 API */
+
+  async getAllPost_Admin() {
+    let posts: any = await this.postingRepository.find({
+      relations: {
+        user_id: true,
+      },
+      select: {
+        post_id: true,
+        user_id: {
+          user_id: true,
+          name: true,
+        },
+        content: true,
+        latitude: true,
+        longitude: true,
+        forFriend: true,
+      },
+    });
+
+    posts = posts.map((post) => ({
+      ...post,
+      user_id: post.user_id.user_id,
+      name: post.user_id.name,
+    }));
+
+    return posts;
+  }
+
+  async updatePost_Admin(post: RequestUpdatePostDto) {
+    let posts = await this.postingRepository.find({
+      where: {
+        post_id: post.post_id,
+      },
+    });
+
+    const updated_post = { ...posts, ...post };
+
+    return await this.postingRepository.save(updated_post);
+  }
+
+  async deletePost_Admin(post_id: string) {
     return await this.postingRepository.delete({ post_id });
   }
 }
