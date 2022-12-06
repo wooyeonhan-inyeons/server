@@ -22,16 +22,6 @@ export class ReportService {
     0: 심한 욕설  1: 혐오 발언  2: 도배 
     3: 선정적인 게시물  4: 도박성 게시물  5: 광고성 게시물 */
 
-    // 본인 게시글인지 확인
-    checkWriter(user, post) {
-        // 본인 게시글이면 false
-        if (user.user_id == post.user_id.user_id) {
-            return false;
-        }
-        else
-            return true;
-    }
-
     // 신고
     async addReport(report_type: number, user_id: string, post_id: string) {
         const user = await this.userRepository.findOneBy({
@@ -60,11 +50,10 @@ export class ReportService {
             });
         }
 
-        // 본인 게시물 조회 미포함
-        if (this.checkWriter) {
-            return;
-        }
+        // 본인 게시물 신고 미포함
+        if (user.user_id == post.user_id.user_id) return;
 
+        // report_type이 달라도 user, post id가 존재하면 이미 신고됨
         const isReported = await this.reportRepository
             .createQueryBuilder('report')
             .where('report.user_id = :user_id', { user_id })
@@ -82,5 +71,23 @@ export class ReportService {
         })
 
         return await this.reportRepository.save(rp);
+    }
+
+    // 신고 취소
+    async deleteReport(user_id: string, post_id: string, report_id: string) {
+        let query = await this.reportRepository
+            .createQueryBuilder('report')
+            .where('report.user_id = :user_id', { user_id })
+            .andWhere('report.post_id = :post_id', { post_id })
+            .getOne();
+
+        // 본인이 신고한 게시글이 아니면 잘못된 요청
+        if (query == null)
+            throw new BadRequestException({
+                status: HttpStatus.BAD_REQUEST,
+                message: '잘못된 요청입니다.',
+            });
+
+        return await this.reportRepository.delete({ report_id });
     }
 }
