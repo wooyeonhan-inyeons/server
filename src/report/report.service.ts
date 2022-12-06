@@ -18,6 +18,10 @@ export class ReportService {
         private postingRepository: Repository<Posting>,
     ) { }
 
+    /* 신고 종류 ()
+    0: 심한 욕설  1: 혐오 발언  2: 도배 
+    3: 선정적인 게시물  4: 도박성 게시물  5: 광고성 게시물 */
+
     // 본인 게시글인지 확인
     checkWriter(user, post) {
         // 본인 게시글이면 false
@@ -42,7 +46,7 @@ export class ReportService {
             },
         });
 
-        // 유저랑 게시글이 존재하지 않을 때
+        // 유저나 게시글이 존재하지 않을 때
         if (user == null) {
             throw new BadRequestException({
                 status: HttpStatus.BAD_REQUEST,
@@ -70,6 +74,13 @@ export class ReportService {
         // 이미 신고했으면 미포함
         if (isReported != null) return;
 
+        // 테이블에 저장
+        const rp = this.reportRepository.create({
+            report_type: report_type,
+            user_id: user,
+            post_id: post,
+        })
 
+        return await this.reportRepository.save(rp);
     }
 }
