@@ -26,6 +26,10 @@ import { RequestUpdateFriendRelationDto } from './dto/RequestUpdateFriendRelatio
 import { RequestDeleteUserDto } from './dto/ReqeustDeleteUser.dto';
 import { ResponseGetAllFriendByAdminDto } from './dto/ResponseGetAllFriendByAdmin.dto';
 import { ResponseReadAllUserDto } from './dto/ResponseReadAllUser.dto';
+import { PostingService } from 'src/posting/posting.service';
+import { RequestUpdatePostDto } from './dto/RequestUpdatePost.dto';
+import { RequestDeletePostDto } from './dto/RequestDeletePost.dto';
+import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -37,6 +41,7 @@ export class AdminController {
     private adminService: AdminService,
     private userService: UserService,
     private friendsService: FriendsService,
+    private postingService: PostingService,
   ) {}
 
   @Get('/all')
@@ -44,6 +49,8 @@ export class AdminController {
   async login(@Request() req) {
     return await this.adminService.findAll();
   }
+
+  /* User 제어 */
 
   // 생성
   @Post('/user')
@@ -96,6 +103,8 @@ export class AdminController {
     return await this.userService.delete(body.user_id);
   }
 
+  /* Friends 제어 */
+
   @Get('/friends/all')
   @ApiCreatedResponse({
     status: 200,
@@ -105,7 +114,7 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async getAllFriendList() {
-    return await this.friendsService.getAllFriendList();
+    return await this.friendsService.getAllFriend_Admin();
   }
 
   @Patch('/friends')
@@ -115,7 +124,7 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async updateFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
-    return await this.friendsService.updateRelation(
+    return await this.friendsService.updateRelation_Admin(
       body.friend_id,
       body.relation_type,
     );
@@ -128,6 +137,40 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async deleteFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
-    return await this.friendsService.deleteFriendByFriendId(body.friend_id);
+    return await this.friendsService.deleteFriend_Admin(body.friend_id);
+  }
+
+  /* Posting 제어 */
+
+  @Get('/post/all')
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetAllPostDto,
+    description: '모든 우연 목록을 조회합니다.',
+    isArray: true,
+  })
+  @Roles([Role.Admin])
+  async getAllPostList() {
+    return await this.postingService.getAllPost_Admin();
+  }
+
+  @Patch('/post')
+  @ApiCreatedResponse({
+    status: 200,
+    description: '특정 우연을 수정합니다.',
+  })
+  @Roles([Role.Admin])
+  async updatePost(@Body() body: RequestUpdatePostDto) {
+    return await this.postingService.updatePost_Admin(body);
+  }
+
+  @Delete('/post')
+  @ApiCreatedResponse({
+    status: 200,
+    description: '특정 우연을 삭제합니다.',
+  })
+  @Roles([Role.Admin])
+  async deletePost(@Body() body: RequestDeletePostDto) {
+    return await this.postingService.deletePost_Admin(body.post_id);
   }
 }

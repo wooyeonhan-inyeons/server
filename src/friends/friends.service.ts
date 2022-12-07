@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Friends } from './friends.entity';
 @Injectable()
 export class FriendsService {
@@ -17,25 +17,6 @@ export class FriendsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
-  async getAllFriendList() {
-    return await this.friendsRepository.find({
-      relations: {
-        follower: true,
-        following: true,
-      },
-      select: {
-        follower: {
-          name: true,
-        },
-        following: {
-          name: true,
-        },
-        friend_id: true,
-        relation_type: true,
-      },
-    });
-  }
 
   //친구 신청
   async createRelation(follower_uuid: string, following_uuid: string) {
@@ -67,11 +48,21 @@ export class FriendsService {
 
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
-      .where('friend.follower = :follower_uuid', { follower_uuid })
-      .andWhere('friend.following = :following_uuid', { following_uuid })
-      .andWhere('friend.relation_type = 1')
+      .where(
+        new Brackets((qb) => {
+          qb.where('friend.follower = :follower_uuid', { follower_uuid })
+            .andWhere('friend.follower = :following_uuid', { following_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
+      .orWhere(
+        new Brackets((qb) => {
+          qb.where('friend.following = :following_uuid', { following_uuid })
+            .andWhere('friend.following = :follower_uuid', { follower_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
       .getOne();
-
     if (isFriend != null)
       throw new BadRequestException({
         status: HttpStatus.BAD_REQUEST,
@@ -142,7 +133,6 @@ export class FriendsService {
       },
     });
 
-    console.log('dd', friend_request);
     //신청받은 사람이 아니면 못받음
     if (friend_request.following?.user_id != user_id)
       throw new BadRequestException({
@@ -253,13 +243,55 @@ export class FriendsService {
     });
   }
 
-  async deleteFriendByFriendId(friend_id: string) {
+  async isFriend(follower_uuid: string, following_uuid: string) {
+    const isFriend = await this.friendsRepository
+      .createQueryBuilder('friend')
+      .where(
+        new Brackets((qb) => {
+          qb.where('friend.follower = :follower_uuid', { follower_uuid })
+            .andWhere('friend.follower = :following_uuid', { following_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
+      .orWhere(
+        new Brackets((qb) => {
+          qb.where('friend.following = :following_uuid', { following_uuid })
+            .andWhere('friend.following = :follower_uuid', { follower_uuid })
+            .andWhere('friend.relation_type = 1');
+        }),
+      )
+      .getOne();
+    return isFriend != null;
+  }
+
+  /* 어드민 전용 API */
+
+  async getAllFriend_Admin() {
+    return await this.friendsRepository.find({
+      relations: {
+        follower: true,
+        following: true,
+      },
+      select: {
+        follower: {
+          name: true,
+        },
+        following: {
+          name: true,
+        },
+        friend_id: true,
+        relation_type: true,
+      },
+    });
+  }
+
+  async deleteFriend_Admin(friend_id: string) {
     return await this.friendsRepository.delete({
       friend_id,
     });
   }
 
-  async updateRelation(friend_id: string, relation_type: number) {
+  async updateRelation_Admin(friend_id: string, relation_type: number) {
     const relation = await this.friendsRepository.findOne({
       where: {
         friend_id,
