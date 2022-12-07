@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Get,
   Res,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
@@ -34,7 +35,12 @@ export class AuthController {
     @Query('username') username: string,
     @Query('password') password: string,
   ) {
-    return this.authService.adminLogin(req.user);
+    return this.authService.adminLogin(req.user).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Get('/kakao')

@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Post,
   Query,
   Req,
@@ -93,12 +94,10 @@ export class PostingController {
         body.forFriend,
       )
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -121,12 +120,10 @@ export class PostingController {
     return await this.postingService
       .getPost(user_id, post_id, latitude, longitude)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -148,12 +145,10 @@ export class PostingController {
     return await this.postingService
       .getNearPost(user_id, latitude, longitude)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -167,12 +162,10 @@ export class PostingController {
     return await this.postingService
       .deletePost(user_id, body.post_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 }

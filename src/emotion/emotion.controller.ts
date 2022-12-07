@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Patch,
   Post,
   Req,
@@ -46,12 +47,10 @@ export class EmotionController {
     return await this.emotionService
       .addEmotion(req.user.user_id, body.post_id, body.emotion_type)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -65,12 +64,10 @@ export class EmotionController {
     return await this.emotionService
       .deleteEmotion(body.emotion_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -84,12 +81,10 @@ export class EmotionController {
     return await this.emotionService
       .updateEmotion(body.emotion_id, body.emotion_type)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 }

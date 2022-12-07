@@ -5,6 +5,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Patch,
   Post,
   Req,
@@ -51,12 +52,10 @@ export class FriendsController {
     return await this.friendsService
       .createRelation(req.user.user_id, body.following_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -73,12 +72,10 @@ export class FriendsController {
     return await this.friendsService
       .getFriendsList(req.user.user_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -91,12 +88,10 @@ export class FriendsController {
     return await this.friendsService
       .acceptFriendRequest(req.user.user_id, body.friend_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -112,12 +107,10 @@ export class FriendsController {
     return await this.friendsService
       .declineFriendRequest(req.user.user_id, body.friend_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -135,12 +128,10 @@ export class FriendsController {
     return await this.friendsService
       .getFriendRequestList(req.user.user_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -158,12 +149,10 @@ export class FriendsController {
     return await this.friendsService
       .getRequestedFriendList(req.user.user_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -176,12 +165,10 @@ export class FriendsController {
     return await this.friendsService
       .deleteFriend(req.user.user_id, body.friend_id)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 }

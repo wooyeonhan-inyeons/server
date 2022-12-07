@@ -9,6 +9,7 @@ import {
   Req,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -37,12 +38,10 @@ export class UserController {
   @Roles([Role.User])
   async getOwnUser(@Req() req) {
     return await this.userService.findOne(req.user.user_id).catch((err) => {
-      throw new HttpException(
-        {
-          message: err.message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     });
   }
 
@@ -56,12 +55,10 @@ export class UserController {
     return await this.userService
       .update(req.user_id, updateData)
       .catch((err) => {
-        throw new HttpException(
-          {
-            message: err.message,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
   }
 
@@ -73,12 +70,10 @@ export class UserController {
   @Roles([Role.User])
   async removeUser(@Req() req) {
     return await this.userService.delete(req.user_id).catch((err) => {
-      throw new HttpException(
-        {
-          message: err.message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     });
   }
 
@@ -93,12 +88,10 @@ export class UserController {
   @Roles([Role.User])
   async getUser(@Query('user_id') user_id: string) {
     return await this.userService.findOne(user_id).catch((err) => {
-      throw new HttpException(
-        {
-          message: err.message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
     });
   }
 }

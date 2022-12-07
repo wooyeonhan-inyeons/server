@@ -8,6 +8,8 @@ import {
   Query,
   Patch,
   Post,
+  InternalServerErrorException,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -59,7 +61,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async login(@Request() req) {
-    return await this.adminService.findAll();
+    return await this.adminService.findAll().catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   /* User 제어 */
@@ -71,7 +78,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async createUser(@Body() createUserData: RequestCreateUserDto) {
-    return await this.userService.create(createUserData);
+    return await this.userService.create(createUserData).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   // 조회
@@ -86,7 +98,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async getUserAll(): Promise<User[]> {
-    return await this.userService.findAll();
+    return await this.userService.findAll().catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Get('/user')
@@ -96,7 +113,12 @@ export class AdminController {
   @ApiCreatedResponse({ status: 200, type: ResponseReadUserDto })
   @Roles([Role.Admin])
   async getUser(@Query('user_id') userID: string) {
-    return await this.userService.findOne(userID);
+    return await this.userService.findOne(userID).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Get('/userAT')
@@ -109,7 +131,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async getUserAT(@Query('user_id') userID: string) {
-    return await this.adminService.getUserAccessToken(userID);
+    return await this.adminService.getUserAccessToken(userID).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   // 수정
@@ -119,7 +146,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async patchUser(@Body() body: RequestUpdateUserDto) {
-    return await this.userService.update(body.user_id, body);
+    return await this.userService.update(body.user_id, body).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   // 삭제
@@ -129,7 +161,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async removeUser(@Body() body: RequestDeleteUserDto) {
-    return await this.userService.delete(body.user_id);
+    return await this.userService.delete(body.user_id).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   /* Friends 제어 */
@@ -145,7 +182,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async getAllFriendList() {
-    return await this.friendsService.getAllFriend_Admin();
+    return await this.friendsService.getAllFriend_Admin().catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Patch('/friends')
@@ -157,10 +199,14 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async updateFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
-    return await this.friendsService.updateRelation_Admin(
-      body.friend_id,
-      body.relation_type,
-    );
+    return await this.friendsService
+      .updateRelation_Admin(body.friend_id, body.relation_type)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
   }
 
   @Delete('/friends')
@@ -172,7 +218,14 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async deleteFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
-    return await this.friendsService.deleteFriend_Admin(body.friend_id);
+    return await this.friendsService
+      .deleteFriend_Admin(body.friend_id)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
   }
 
   /* Posting 제어 */
@@ -188,7 +241,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async getAllPostList() {
-    return await this.postingService.getAllPost_Admin();
+    return await this.postingService.getAllPost_Admin().catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Patch('/post')
@@ -200,7 +258,12 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async updatePost(@Body() body: RequestUpdatePostDto) {
-    return await this.postingService.updatePost_Admin(body);
+    return await this.postingService.updatePost_Admin(body).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Delete('/post')
@@ -213,30 +276,53 @@ export class AdminController {
   })
   @Roles([Role.Admin])
   async deletePost(@Body() body: RequestDeletePostDto) {
-    return await this.postingService.deletePost_Admin(body.post_id);
+    return await this.postingService
+      .deletePost_Admin(body.post_id)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
   }
 
   /* Report 제어 */
 
   @Get('/report/all')
+  @ApiOperation({
+    summary: '모든 신고 목록을 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetAllReportDto,
-    description: '모든 신고 목록을 조회합니다.',
     isArray: true,
   })
   @Roles([Role.Admin])
   async getAllReportList() {
-    return await this.reportService.getAllReport_Admin();
+    return await this.reportService.getAllReport_Admin().catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Delete('/report')
+  @ApiOperation({
+    summary: '특정 신고를 삭제합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
-    description: '특정 우연을 삭제합니다.',
   })
   @Roles([Role.Admin])
   async deleteReport(@Body() body: RequestDeleteReportDto) {
-    return await this.reportService.deleteReport_Admin(body.report_id);
+    return await this.reportService
+      .deleteReport_Admin(body.report_id)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
   }
 }

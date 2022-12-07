@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
+  InternalServerErrorException,
   Post,
   Query,
   Req,
@@ -30,10 +32,14 @@ export class FootprintController {
   })
   @Roles([Role.User])
   async createFootPrint(@Req() req, @Body() body: RequestCreateFootPrintDto) {
-    return await this.footprintService.addFootprint(
-      req.user.user_id,
-      body.post_id,
-    );
+    return await this.footprintService
+      .addFootprint(req.user.user_id, body.post_id)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
   }
 
   // 발자국 수 조회
@@ -43,6 +49,11 @@ export class FootprintController {
   })
   @Roles([Role.User])
   async getFootprints(@Query('post_id') post_id: string) {
-    return await this.footprintService.getFootprints(post_id);
+    return await this.footprintService.getFootprints(post_id).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 }
