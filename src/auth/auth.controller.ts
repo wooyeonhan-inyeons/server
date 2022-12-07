@@ -9,10 +9,11 @@ import {
   HttpStatus,
   Get,
   Res,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResponseAdminLoginDto } from './dto/ResponseAdminLogin.dto';
 import { KakaoAuthGuard } from './guards/kakao-auth.guard';
 import { ResponseUserLoginDto } from './dto/ResponseUserLogin.dto';
@@ -21,35 +22,49 @@ import { Response } from 'express';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService
-    ) {}
+  constructor(private authService: AuthService) {}
 
+  @ApiOperation({
+    summary: '어드민 로그인',
+  })
   @Post('/admin')
-  @ApiCreatedResponse({ status: 200, type: ResponseAdminLoginDto , description: "어드민 로그인"})
+  @ApiCreatedResponse({ status: 200, type: ResponseAdminLoginDto })
   @UseGuards(LocalAuthGuard)
   async login(
     @Request() req,
     @Query('username') username: string,
     @Query('password') password: string,
   ) {
-    return this.authService.adminLogin(req.user);
+    return this.authService.adminLogin(req.user).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Get('/kakao')
-  @ApiCreatedResponse({ status: 200, type:  ResponseUserLoginDto, description: "유저 카카오 소셜로그인"})
+  @ApiOperation({
+    summary: '유저 카카오 소셜 로그인.',
+  })
+  @ApiCreatedResponse({ status: 200, type: ResponseUserLoginDto })
   @UseGuards(KakaoAuthGuard)
-  async kakaoLogin(){
-    return HttpStatus.OK
+  async kakaoLogin() {
+    return HttpStatus.OK;
   }
 
   @Get('/kakao/oauth')
+  @ApiOperation({
+    summary: '카카오 Redirect URL.',
+  })
   @UseGuards(KakaoAuthGuard)
-  async kakaoRedirect(@Req() req, @Res() res: Response){
-    if(req.user.email == null){
-      return HttpStatus.NOT_ACCEPTABLE
-    } 
-    const result =  await this.authService.userLogin(req.user)
-    res.redirect(`${process.env.CLIENT_URL}/auth/kakao/redirect?access_token=${result.access_token}`)
+  async kakaoRedirect(@Req() req, @Res() res: Response) {
+    if (req.user.email == null) {
+      return HttpStatus.NOT_ACCEPTABLE;
+    }
+    const result = await this.authService.userLogin(req.user);
+    res.redirect(
+      `${process.env.CLIENT_URL}/auth/kakao/redirect?access_token=${result.access_token}`,
+    );
   }
 }
