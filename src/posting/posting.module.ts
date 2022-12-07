@@ -7,13 +7,16 @@ import { MulterModule } from '@nestjs/platform-express';
 import { S3Module } from 'src/s3/s3.module';
 import { UserModule } from 'src/user/user.module';
 import { FootprintModule } from 'src/footprint/footprint.module';
+import { EmotionModule } from 'src/emotion/emotion.module';
+import { Emotion } from 'src/emotion/emotion.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Posting]),
+    TypeOrmModule.forFeature([Posting, Emotion]),
     S3Module,
     UserModule,
     FootprintModule,
+    EmotionModule,
   ],
   controllers: [PostingController],
   providers: [PostingService],

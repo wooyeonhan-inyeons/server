@@ -9,7 +9,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
@@ -49,6 +54,9 @@ export class AdminController {
   ) {}
 
   @Get('/all')
+  @ApiOperation({
+    summary: '모든 어드민을 조회합니다.',
+  })
   @Roles([Role.Admin])
   async login(@Request() req) {
     return await this.adminService.findAll();
@@ -58,6 +66,9 @@ export class AdminController {
 
   // 생성
   @Post('/user')
+  @ApiOperation({
+    summary: '새로운 유저를 생성합니다.',
+  })
   @Roles([Role.Admin])
   async createUser(@Body() createUserData: RequestCreateUserDto) {
     return await this.userService.create(createUserData);
@@ -65,6 +76,9 @@ export class AdminController {
 
   // 조회
   @Get('/user/all')
+  @ApiOperation({
+    summary: '모든 유저를 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseReadAllUserDto,
@@ -76,6 +90,9 @@ export class AdminController {
   }
 
   @Get('/user')
+  @ApiOperation({
+    summary: '특정 유저를 조회합니다.',
+  })
   @ApiCreatedResponse({ status: 200, type: ResponseReadUserDto })
   @Roles([Role.Admin])
   async getUser(@Query('user_id') userID: string) {
@@ -83,10 +100,12 @@ export class AdminController {
   }
 
   @Get('/userAT')
+  @ApiOperation({
+    summary: '특정 유저의 access_token을 얻을 수 있습니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetUserATDto,
-    description: '해당 유저의 access_token을 얻을수있습니다.',
   })
   @Roles([Role.Admin])
   async getUserAT(@Query('user_id') userID: string) {
@@ -95,6 +114,9 @@ export class AdminController {
 
   // 수정
   @Patch('/user')
+  @ApiOperation({
+    summary: '특정 유저 정보를 수정합니다.',
+  })
   @Roles([Role.Admin])
   async patchUser(@Body() body: RequestUpdateUserDto) {
     return await this.userService.update(body.user_id, body);
@@ -102,6 +124,9 @@ export class AdminController {
 
   // 삭제
   @Delete('/user')
+  @ApiOperation({
+    summary: '특정 유저를 삭제합니다.',
+  })
   @Roles([Role.Admin])
   async removeUser(@Body() body: RequestDeleteUserDto) {
     return await this.userService.delete(body.user_id);
@@ -110,10 +135,12 @@ export class AdminController {
   /* Friends 제어 */
 
   @Get('/friends/all')
+  @ApiOperation({
+    summary: '모든 친구 관계를 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetAllFriendByAdminDto,
-    description: '모든 친구 요청 목록을 조회합니다.',
     isArray: true,
   })
   @Roles([Role.Admin])
@@ -122,9 +149,11 @@ export class AdminController {
   }
 
   @Patch('/friends')
+  @ApiOperation({
+    summary: '친구 관계를 수정합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
-    description: '친구 목록에서 관계를 수정합니다.',
   })
   @Roles([Role.Admin])
   async updateFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
@@ -135,9 +164,11 @@ export class AdminController {
   }
 
   @Delete('/friends')
+  @ApiOperation({
+    summary: '특정 친구 관계를 삭제합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
-    description: '특정 친구 관계를 삭제합니다.',
   })
   @Roles([Role.Admin])
   async deleteFriendRelation(@Body() body: RequestUpdateFriendRelationDto) {
@@ -147,10 +178,12 @@ export class AdminController {
   /* Posting 제어 */
 
   @Get('/post/all')
+  @ApiOperation({
+    summary: '모든 우연 목록을 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetAllPostDto,
-    description: '모든 우연 목록을 조회합니다.',
     isArray: true,
   })
   @Roles([Role.Admin])
@@ -159,9 +192,11 @@ export class AdminController {
   }
 
   @Patch('/post')
+  @ApiOperation({
+    summary: '특정 우연을 수정합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
-    description: '특정 우연을 수정합니다.',
   })
   @Roles([Role.Admin])
   async updatePost(@Body() body: RequestUpdatePostDto) {
@@ -169,6 +204,9 @@ export class AdminController {
   }
 
   @Delete('/post')
+  @ApiOperation({
+    summary: '특정 우연을 삭제합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     description: '특정 우연을 삭제합니다.',

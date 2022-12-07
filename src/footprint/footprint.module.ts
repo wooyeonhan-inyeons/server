@@ -6,11 +6,7 @@ import { Footprint } from './footprint.entity';
 import { User } from 'src/user/user.entity';
 import { Posting } from 'src/posting/posting.entity';
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Footprint]),
-    TypeOrmModule.forFeature([User]),
-    TypeOrmModule.forFeature([Posting]),
-  ],
+  imports: [TypeOrmModule.forFeature([Footprint, User, Posting])],
   controllers: [FootprintController],
   providers: [FootprintService],
   exports: [FootprintService],

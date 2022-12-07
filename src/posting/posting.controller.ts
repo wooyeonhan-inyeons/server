@@ -19,6 +19,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -47,6 +48,9 @@ export class PostingController {
   // }
 
   @Post()
+  @ApiOperation({
+    summary: '우연을 생성합니다.',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -99,10 +103,12 @@ export class PostingController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: '하나의 우연을 조회합니다. 반경 50m 안에 있어야됩니댜..',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetOnePostDto,
-    description: '하나의 우연을 조회합니다. 반경 50m 안에 있어야됩니댜.',
   })
   @Roles([Role.User])
   async getOnePost(
@@ -125,10 +131,12 @@ export class PostingController {
   }
 
   @Get('/near')
+  @ApiOperation({
+    summary: '반경 500m 이내의 우연들을 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetPostByLocation,
-    description: '반경 500m 이내의 우연들을 조회합니다.',
   })
   @Roles([Role.User])
   async getPostByLocation(
@@ -150,6 +158,9 @@ export class PostingController {
   }
 
   @Delete()
+  @ApiOperation({
+    summary: '우연을 삭제합니다.',
+  })
   @Roles([Role.User])
   async deletePost(@Body() body: RequestDeletePostingDto, @Req() req) {
     const user_id = req.user.user_id;

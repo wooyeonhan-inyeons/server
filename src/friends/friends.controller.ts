@@ -10,7 +10,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
@@ -34,10 +39,12 @@ export class FriendsController {
   constructor(private friendsService: FriendsService) {}
 
   @Post()
+  @ApiOperation({
+    summary: '친구 신청을 합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseCreateFriendDto,
-    description: '친구 신청을 합니다.',
   })
   @Roles([Role.User])
   async create(@Req() req, @Body() body: RequestCreateFriendDto) {
@@ -54,10 +61,12 @@ export class FriendsController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: '모든 친구를 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetAllFriendDto,
-    description: '모든 친구를 조회합니다.',
   })
   @Roles([Role.User])
   async getAllFriend(@Req() req) {
@@ -74,6 +83,9 @@ export class FriendsController {
   }
 
   @Post('/accept')
+  @ApiOperation({
+    summary: '친구요청을 수락합니다.',
+  })
   @Roles([Role.User])
   async acceptFriendRequest(@Req() req, @Body() body: RequestAcceptFriendDto) {
     return await this.friendsService
@@ -89,6 +101,9 @@ export class FriendsController {
   }
 
   @Post('/decline')
+  @ApiOperation({
+    summary: '친구요청을 거절합니다.',
+  })
   @Roles([Role.User])
   async declineFriendRequest(
     @Req() req,
@@ -107,10 +122,12 @@ export class FriendsController {
   }
 
   @Get('/request')
+  @ApiOperation({
+    summary: '받은 친구요청 목록을 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetFriendRequestDto,
-    description: '받은 친구요청 목록을 조회합니다.',
     isArray: true,
   })
   @Roles([Role.User])
@@ -128,10 +145,12 @@ export class FriendsController {
   }
 
   @Get('/requested')
+  @ApiOperation({
+    summary: '보낸 친구요청 목록을 조회합니다.',
+  })
   @ApiCreatedResponse({
     status: 200,
     type: ResponseGetRequestFriendListDto,
-    description: '보낸 친구요청 목록을 조회합니다.',
     isArray: true,
   })
   @Roles([Role.User])
@@ -149,6 +168,9 @@ export class FriendsController {
   }
 
   @Delete()
+  @ApiOperation({
+    summary: '친구를 삭제합니다.',
+  })
   @Roles([Role.User])
   async deleteFriend(@Req() req, @Body() body: RequestDeleteFriendDto) {
     return await this.friendsService
