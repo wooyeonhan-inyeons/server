@@ -106,7 +106,7 @@ forFriend = 0 인 게시물 중에
   ) {
     let query = this.postingRepository
       .createQueryBuilder('post')
-      .leftJoin('post.user_id', 'user')
+      .leftJoinAndSelect('post.user_id', 'user')
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
       .leftJoinAndSelect('post.image', 'image')
@@ -149,31 +149,14 @@ forFriend = 0 인 게시물 중에
       .having(`distance <= ${0.05}`)
       .orderBy('distance', 'ASC');
 
-    const result = await query.getOne();
+    let post = await query.getOne();
 
-    if (result == null)
+    if (post == null)
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
         message: '50m 이내 게시물만 조회할 수 있거나, 친구가 아닙니다.',
       });
     const distance = (await query.getRawOne())?.distance;
-    // const emotion = await this.emotionRepository.findOne({
-    //   relations: {
-    //     user_id: true,
-    //     // post_id: true
-    //   },
-    //   where: {
-    //     emotion_type: 1,
-    //     user_id: {
-    //       user_id,
-    //     },
-    //   },
-    //   // select: {
-    //   //   emotion_id: true,
-    //   //   emotion_type: true,
-    //   // },
-    // });
-
     const emotion = await this.emotionRepository
       .createQueryBuilder('emotion')
       .leftJoin('emotion.user_id', 'user')
@@ -181,11 +164,13 @@ forFriend = 0 인 게시물 중에
       .where('user.user_id = :user_id', { user_id })
       .where('post.post_id = :post_id', { post_id })
       .getOne();
+    const owner = post.user_id.user_id === user_id;
+    const result = { user_id, ...post };
 
     /* 발자국 추가 */
     await this.footprintService.addFootprint(user_id, post_id);
 
-    return { ...result, emotion: { ...emotion }, distance };
+    return { ...result, emotion: { ...emotion }, distance, owner };
   }
 
   async deletePost(user_id: string, post_id: string) {

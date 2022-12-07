@@ -5,9 +5,6 @@ export class ResponseGetPostByLocation {
   post_id: string;
 
   @ApiProperty()
-  content: string;
-
-  @ApiProperty()
   created_time: Date;
 
   @ApiProperty()
