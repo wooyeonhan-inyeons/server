@@ -30,6 +30,9 @@ import { PostingService } from 'src/posting/posting.service';
 import { RequestUpdatePostDto } from './dto/RequestUpdatePost.dto';
 import { RequestDeletePostDto } from './dto/RequestDeletePost.dto';
 import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
+import { ReportService } from 'src/report/report.service';
+import { ResponseGetAllReportDto } from './dto/ResponseGetAllReport.dto';
+import { RequestDeleteReportDto } from 'src/report/dto/RequestDeleteReport.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -42,6 +45,7 @@ export class AdminController {
     private userService: UserService,
     private friendsService: FriendsService,
     private postingService: PostingService,
+    private reportService: ReportService,
   ) {}
 
   @Get('/all')
@@ -172,5 +176,29 @@ export class AdminController {
   @Roles([Role.Admin])
   async deletePost(@Body() body: RequestDeletePostDto) {
     return await this.postingService.deletePost_Admin(body.post_id);
+  }
+
+  /* Report 제어 */
+
+  @Get('/report/all')
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetAllReportDto,
+    description: '모든 신고 목록을 조회합니다.',
+    isArray: true,
+  })
+  @Roles([Role.Admin])
+  async getAllReportList() {
+    return await this.reportService.getAllReport_Admin();
+  }
+
+  @Delete('/report')
+  @ApiCreatedResponse({
+    status: 200,
+    description: '특정 우연을 삭제합니다.',
+  })
+  @Roles([Role.Admin])
+  async deleteReport(@Body() body: RequestDeleteReportDto) {
+    return await this.reportService.deleteReport_Admin(body.report_id);
   }
 }

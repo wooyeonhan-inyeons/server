@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { FriendsModule } from 'src/friends/friends.module';
 import { PostingModule } from 'src/posting/posting.module';
+import { ReportModule } from 'src/report/report.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PostingModule } from 'src/posting/posting.module';
     UserModule,
     FriendsModule,
     PostingModule,
+    ReportModule,
   ],
   providers: [AdminService],
   controllers: [AdminController],
