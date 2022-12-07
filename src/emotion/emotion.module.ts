@@ -7,9 +7,9 @@ import { Posting } from 'src/posting/posting.entity';
 import { User } from 'src/user/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Emotion]), TypeOrmModule.forFeature([Posting]), TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([Emotion, Posting, User])],
   controllers: [EmotionController],
   providers: [EmotionService],
-  exports: [EmotionService]
+  exports: [EmotionService],
 })
 export class EmotionModule {}

@@ -13,6 +13,8 @@ import { UserService } from 'src/user/user.service';
 import { Image } from 'src/image/image.entity';
 import { FootprintService } from 'src/footprint/footprint.service';
 import { RequestUpdatePostDto } from 'src/admin/dto/RequestUpdatePost.dto';
+import { EmotionService } from 'src/emotion/emotion.service';
+import { Emotion } from 'src/emotion/emotion.entity';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -20,9 +22,14 @@ export class PostingService {
   constructor(
     @InjectRepository(Posting)
     private postingRepository: Repository<Posting>,
+
+    @InjectRepository(Emotion)
+    private emotionRepository: Repository<Emotion>,
+
     private s3Service: S3Service,
     private userService: UserService,
     private footprintService: FootprintService,
+    private emotionService: EmotionService,
   ) {}
 
   async create(
@@ -104,6 +111,21 @@ forFriend = 0 인 게시물 중에
       .leftJoin('user.follower', 'follower')
       .leftJoinAndSelect('post.image', 'image')
       .loadRelationCountAndMap('post.footprint_count', 'post.footprint')
+      .loadRelationCountAndMap(
+        'post.like_count',
+        'post.emotion',
+        'like',
+        (qb) => qb.where('like.emotion_type = 0'),
+      )
+      .loadRelationCountAndMap(
+        'post.cool_count',
+        'post.emotion',
+        'cool',
+        (qb) => qb.where('cool.emotion_type = 1'),
+      )
+      .loadRelationCountAndMap('post.sad_count', 'post.emotion', 'sad', (qb) =>
+        qb.where('sad.emotion_type = 2'),
+      )
       .where('post.post_id=:post_id', { post_id })
       .andWhere(
         new Brackets((qb) => {
@@ -128,17 +150,42 @@ forFriend = 0 인 게시물 중에
       .orderBy('distance', 'ASC');
 
     const result = await query.getOne();
-    const distance = (await query.getRawOne())?.distance;
 
     if (result == null)
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
         message: '50m 이내 게시물만 조회할 수 있거나, 친구가 아닙니다.',
       });
+    const distance = (await query.getRawOne())?.distance;
+    // const emotion = await this.emotionRepository.findOne({
+    //   relations: {
+    //     user_id: true,
+    //     // post_id: true
+    //   },
+    //   where: {
+    //     emotion_type: 1,
+    //     user_id: {
+    //       user_id,
+    //     },
+    //   },
+    //   // select: {
+    //   //   emotion_id: true,
+    //   //   emotion_type: true,
+    //   // },
+    // });
 
+    const emotion = await this.emotionRepository
+      .createQueryBuilder('emotion')
+      .leftJoin('emotion.user_id', 'user')
+      .leftJoin('emotion.post_id', 'post')
+      .where('user.user_id = :user_id', { user_id })
+      .where('post.post_id = :post_id', { post_id })
+      .getOne();
+
+    /* 발자국 추가 */
     await this.footprintService.addFootprint(user_id, post_id);
 
-    return { ...result, distance };
+    return { ...result, emotion: { ...emotion }, distance };
   }
 
   async deletePost(user_id: string, post_id: string) {
