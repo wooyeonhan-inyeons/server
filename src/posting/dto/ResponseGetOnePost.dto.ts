@@ -57,4 +57,7 @@ export class ResponseGetOnePostDto {
 
   @ApiProperty()
   distance: number;
+
+  @ApiProperty()
+  owner: boolean;
 }
