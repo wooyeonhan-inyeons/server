@@ -99,7 +99,7 @@ forFriend = 0 인 게시물 중에
   }
 
   async getPost(
-    user_id: string,
+    author_id: string,
     post_id: string,
     latitude: number,
     longitude: number,
@@ -130,15 +130,15 @@ forFriend = 0 인 게시물 중에
       .andWhere(
         new Brackets((qb) => {
           qb.where(
-            'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
-            { user_id },
+            'following.followingUserId = :author_id AND following.relation_type = 1 AND post.forFriend = 1',
+            { author_id },
           )
             .orWhere(
-              'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
-              { user_id },
+              'follower.followerUserId = :author_id AND follower.relation_type = 1 AND post.forFriend = 1',
+              { author_id },
             )
             .orWhere('post.forFriend = 0')
-            .orWhere('post.user_id = :user_id', { user_id });
+            .orWhere('post.user_id = :author_id', { author_id });
         }),
       )
 
@@ -161,14 +161,14 @@ forFriend = 0 인 게시물 중에
       .createQueryBuilder('emotion')
       .leftJoin('emotion.user_id', 'user')
       .leftJoin('emotion.post_id', 'post')
-      .where('user.user_id = :user_id', { user_id })
+      .where('user.user_id = :user_id', { author_id })
       .where('post.post_id = :post_id', { post_id })
       .getOne();
-    const owner = post.user_id.user_id === user_id;
-    const result = { user_id, ...post };
+    const owner = post.user_id.user_id === author_id;
+    const { user_id, ...result } = post;
 
     /* 발자국 추가 */
-    await this.footprintService.addFootprint(user_id, post_id);
+    await this.footprintService.addFootprint(author_id, post_id);
 
     return { ...result, emotion: { ...emotion }, distance, owner };
   }

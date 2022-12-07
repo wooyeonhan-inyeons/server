@@ -181,6 +181,7 @@ export class FriendsService {
           name: true,
         },
         friend_id: true,
+        created_at: true,
       },
       relations: {
         follower: true,
