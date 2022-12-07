@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/user.entity';
 
@@ -17,21 +18,24 @@ export class Friends {
         user: User;
     )*/
   @ManyToOne(() => User, (user) => user.following, {
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
-    nullable: false
+    nullable: false,
   })
   //   @JoinColumn({ name: 'user_id_1', referencedColumnName: 'user_id' })
   follower!: User;
 
   @ManyToOne(() => User, (user) => user.follower, {
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
     orphanedRowAction: 'delete',
-    nullable: false
+    nullable: false,
   })
   //   @JoinColumn({ name: 'user_id_2', referencedColumnName: 'user_id' })
   following!: User;
 
   @Column()
   relation_type!: number;
+
+  @CreateDateColumn()
+  created_at!: Date;
 }
