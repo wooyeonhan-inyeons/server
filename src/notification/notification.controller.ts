@@ -4,6 +4,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
+import { RequestUpdateNotificationDto } from './dto/RequestUpdateNotification.dto';
 import { NotificationService } from './notification.service';
 
 @ApiTags('notification')
@@ -24,7 +25,8 @@ export class NotificationController {
   @Roles([Role.User])
   async LoadNotification(@Req() req) {
     return await this.notificationService
-      .loadNotifications(req.user.user_id).catch((err) => {
+      .loadNotifications(req.user.user_id)
+      .catch((err) => {
         throw new InternalServerErrorException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: err.messages,
@@ -38,9 +40,9 @@ export class NotificationController {
     summary: '알림을 확인했는지 체크합니다.',
   })
   @Roles([Role.User])
-  async CheckRead(@Query('notification_id') notification_id: string, @Req() req) {
+  async ReadNotification(@Req() req, @Body() body: RequestUpdateNotificationDto) {
     return await this.notificationService
-      .isRead(notification_id, req.user.user_id)
+      .readNotification(body.notification_id, req.user.user_id)
       .catch((err) => {
         throw new InternalServerErrorException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -49,5 +51,19 @@ export class NotificationController {
       });
   }
 
-
+  @Get()
+  @ApiOperation({
+    summary: '알림을 등록합니다.',
+  })
+  @Roles([Role.User])
+  async PushNotification(@Req() req) {
+    return await this.notificationService
+      .push(req.user.user_id)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
+      });
+  }
 }
