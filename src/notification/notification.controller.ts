@@ -36,7 +36,7 @@ export class NotificationController {
   }
 
   // 알림 확인 체크
-  @Post('check')
+  @Post('read')
   @ApiOperation({
     summary: '알림을 확인했는지 체크합니다.',
   })

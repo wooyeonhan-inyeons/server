@@ -23,7 +23,6 @@ export class NotificationService {
   async loadNotifications(user_id: string) {
     const notification = await this.notificationRepository
       .createQueryBuilder('notification')
-      .innerJoin(User, 'user', 'user.user_id = notification.user_id')
       .where('notification.user_id = :user_id', { user_id })
       .limit(10);
 
