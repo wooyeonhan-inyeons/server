@@ -16,6 +16,12 @@ export class Notification {
 
   @Column()
   /*
+   확인 여부
+  */
+  viewed!: boolean;
+
+  @Column()
+  /*
     0: 친구 요청
     1: 친구 요청 받음
   */
