@@ -1,5 +1,6 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Notification } from './notification.entity';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { RequestCreateNotificationDto } from './dto/RequestCreateNotification.dto';
@@ -29,15 +30,20 @@ export class NotificationService {
     return notification;
   }
 
+
   // 알림 확인 체크
-  async readNotification(notification_id: string, user_id: string) {
+  async readNotification(user_id: string, notification_id: string) {
     const user = await this.userRepository.findOneBy({
       user_id,
     });
-    const notification_ = await this.notificationRepository
-      .createQueryBuilder('notification')
-      .where('notification.notification_id = :notification_id', { notification_id })
-      .getOne();
+    const notification = await this.notificationRepository.findOne({
+      relations: {
+        user_id: true,
+      },
+      where: {
+        notification_id,
+      },
+    });
 
     // 유저나 알림이 없을 때
     if (user == null) {
@@ -46,34 +52,29 @@ export class NotificationService {
         message: '유저가 존재하지 않습니다.',
       });
     }
-    if (notification_ == null) {
+    if (notification == null) {
       throw new BadRequestException({
         status: HttpStatus.BAD_REQUEST,
         message: '알림이 존재하지 않습니다.',
       });
     }
 
-    const isMine = await this.notificationRepository
-      .createQueryBuilder('notification')
-      .innerJoin(User, 'user', 'notification.user_id = user.user_id')
-      .where('notification.user_id = :user_id', { user_id })
-      .andWhere('notification.notification_id = :notification_id', { notification_id })
-      .getOne();
+    // const isMine = await this.notificationRepository
+    //   .createQueryBuilder('notification')
+    //   .innerJoin(User, 'user', 'notification.user_id = user.user_id')
+    //   .where('notification.user_id = :user_id', { user_id })
+    //   .andWhere('notification.notification_id = :notification_id', { notification_id })
+    //   .getOne();
 
-    // 알림이 요청한 유저의 것이 아닐 때
-    if (isMine == null) {
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '잘못된 요청입니다.',
-      });
-    }
+    // // 알림이 요청한 유저의 것이 아닐 때
+    // if (isMine == null) {
+    //   throw new BadRequestException({
+    //     status: HttpStatus.BAD_REQUEST,
+    //     message: '잘못된 요청입니다.',
+    //   });
+    // }
 
-    const isRead = await this.notificationRepository
-      .createQueryBuilder('notification')
-      .select('viewed')
-      .where('notification.notification_id = :notification_id', { notification_id })
-      .andWhere('notification.user_id = :user_id', { user_id })
-      .getOne();
+    const isRead = notification.viewed;
 
     // 이미 읽은 알림일 때
     if (isRead) {
@@ -84,11 +85,13 @@ export class NotificationService {
     }
 
     // 업데이트
-
+    notification.viewed = true;
+    return await this.notificationRepository.save(notification);
   }
 
+
   // 알림 등록
-  async push(user_id: string) {
+  async push(user_id: string, data: RequestCreateNotificationDto) {
     const user = await this.userRepository.findOneBy({
       user_id,
     });
@@ -102,6 +105,13 @@ export class NotificationService {
     }
 
     // 알림 등록
+    const notification = this.notificationRepository.create({
+      user_id: user,
+      message: data.message,
+      viewed: data.viewed,
+      type: data.type,
+    });
 
+    return await this.notificationRepository.save(notification);
   }
 }
