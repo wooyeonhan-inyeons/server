@@ -4,6 +4,7 @@ import { Bookmark } from 'src/bookmark/bookmark.entity';
 import { Emotion } from 'src/emotion/emotion.entity';
 import { Footprint } from 'src/footprint/footprint.entity';
 import { Friends } from 'src/friends/friends.entity';
+import { Notification } from 'src/notification/notification.entity';
 import { Posting } from 'src/posting/posting.entity';
 import { Report } from 'src/report/report.entity';
 import {
@@ -69,4 +70,9 @@ export class User {
     cascade: true,
   })
   post: Posting[];
+
+  @OneToMany(() => Notification, (notification) => notification.user_id, {
+    cascade: true,
+  })
+  notification: Notification[];
 }
