@@ -37,6 +37,7 @@ export class Posting {
   @ManyToOne(() => User, (user) => user.post, {
     //유저가 삭제되면 모든 포스트는 삭제된다.
     onDelete: 'CASCADE',
+    orphanedRowAction: 'delete',
     nullable: false,
   })
   user_id!: User;
