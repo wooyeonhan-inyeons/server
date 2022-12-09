@@ -25,7 +25,6 @@ import { User } from 'src/user/user.entity';
 import { UserService } from 'src/user/user.service';
 import { AdminService } from './admin.service';
 import { RequestCreateUserDto } from '../user/dto/RequestCreateUser.dto';
-import { RequestUpdateUserDto } from 'src/user/dto/RequestUpdateUser.dto';
 import { ResponseReadUserDto } from './dto/ResponseReadUser.dto';
 import { ResponseGetUserATDto } from './dto/ResponseGetUserAT.dto';
 import { FriendsService } from 'src/friends/friends.service';
@@ -40,6 +39,7 @@ import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
 import { ReportService } from 'src/report/report.service';
 import { ResponseGetAllReportDto } from './dto/ResponseGetAllReport.dto';
 import { RequestDeleteReportDto } from 'src/report/dto/RequestDeleteReport.dto';
+import { RequestUpdateUserDto } from './dto/RequestUpdateUser.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
