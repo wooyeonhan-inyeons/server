@@ -4,10 +4,6 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RequestUpdateUserDto {
   @ApiProperty()
   @IsString()
-  user_id: string;
-
-  @ApiProperty()
-  @IsString()
   name: string;
 
   @ApiProperty()

@@ -53,7 +53,7 @@ export class UserController {
   @Roles([Role.User])
   async patchUser(@Req() req, @Body() updateData: RequestUpdateUserDto) {
     return await this.userService
-      .update(req.user_id, updateData)
+      .update(req.user.user_id, updateData)
       .catch((err) => {
         throw new InternalServerErrorException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -69,7 +69,7 @@ export class UserController {
   })
   @Roles([Role.User])
   async removeUser(@Req() req) {
-    return await this.userService.delete(req.user_id).catch((err) => {
+    return await this.userService.delete(req.user.user_id).catch((err) => {
       throw new InternalServerErrorException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: err.message,
