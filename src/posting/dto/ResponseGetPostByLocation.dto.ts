@@ -15,4 +15,7 @@ export class ResponseGetPostByLocation {
 
   @ApiProperty()
   longitude: number;
+
+  @ApiProperty()
+  viewed: number;
 }

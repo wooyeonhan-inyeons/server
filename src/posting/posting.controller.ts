@@ -28,8 +28,10 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
 import { RequestDeletePostingDto } from './dto/RequestDeletePosting.dto';
+import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
 import { ResponseGetOnePostDto } from './dto/ResponseGetOnePost.dto';
 import { ResponseGetPostByLocation } from './dto/ResponseGetPostByLocation.dto';
+import { ResponseGetViewedPostDto } from './dto/ResponseGetViewedPost.dto';
 import { PostingService } from './posting.service';
 
 @ApiTags('posting')
@@ -103,7 +105,8 @@ export class PostingController {
 
   @Get()
   @ApiOperation({
-    summary: '하나의 우연을 조회합니다. 반경 50m 안에 있어야됩니댜..',
+    summary:
+      '하나의 우연을 조회합니다. 반경 50m 안에 있어야됩니댜. (단, 작성자 및 한번 확인한 사용자는 거리 상관없이 가능)',
   })
   @ApiCreatedResponse({
     status: 200,
@@ -120,11 +123,52 @@ export class PostingController {
     return await this.postingService
       .getPost(user_id, post_id, latitude, longitude)
       .catch((err) => {
+        console.log(err);
         throw new InternalServerErrorException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: err.message,
         });
       });
+  }
+
+  @Get('/all')
+  @ApiOperation({
+    summary: '본인의 전체 우연을 조회합니다.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetAllPostDto,
+    isArray: true,
+  })
+  @Roles([Role.User])
+  async getAllPost(@Req() req) {
+    const user_id = req.user.user_id;
+    return await this.postingService.getAllPost(user_id).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
+  }
+
+  @Get('/viewed')
+  @ApiOperation({
+    summary: '한번 본 우연을 조회합니다.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetViewedPostDto,
+    isArray: true,
+  })
+  @Roles([Role.User])
+  async getViewedPost(@Req() req) {
+    const user_id = req.user.user_id;
+    return await this.postingService.getViewedPost(user_id).catch((err) => {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: err.message,
+      });
+    });
   }
 
   @Get('/near')
@@ -145,6 +189,7 @@ export class PostingController {
     return await this.postingService
       .getNearPost(user_id, latitude, longitude)
       .catch((err) => {
+        console.log(err);
         throw new InternalServerErrorException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: err.message,

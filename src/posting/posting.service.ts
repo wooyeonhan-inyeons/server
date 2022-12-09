@@ -15,6 +15,7 @@ import { FootprintService } from 'src/footprint/footprint.service';
 import { RequestUpdatePostDto } from 'src/admin/dto/RequestUpdatePost.dto';
 import { EmotionService } from 'src/emotion/emotion.service';
 import { Emotion } from 'src/emotion/emotion.entity';
+import { pbkdf2 } from 'crypto';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -73,7 +74,12 @@ forFriend = 0 인 게시물 중에
       .leftJoin('post.user_id', 'user')
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
-      // .leftJoin('post.footprint', 'footprint')
+      .leftJoin('post.footprint', 'footprint')
+      .select('post.post_id')
+      .addSelect('post.created_time')
+      .addSelect('post.forFriend')
+      .addSelect('post.latitude')
+      .addSelect('post.longitude')
       .where(
         new Brackets((qb) => {
           qb.where(
@@ -89,17 +95,53 @@ forFriend = 0 인 게시물 중에
         }),
       )
       .addSelect(
+        `
+        CASE 
+        WHEN footprint.user_id = "${user_id}" THEN 1
+        ELSE 0
+        END
+      `,
+        'viewed',
+      )
+      .addSelect(
         `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
         'distance',
       )
       .having(`distance <= ${0.5}`)
-      .orderBy('distance', 'ASC')
+      .orderBy('distance', 'ASC');
+
+    let queryResult = await query.getRawAndEntities();
+    // const queryContainsViewed = await query.getRawMany();
+    // console.log(await query.getRawAndEntities());
+    let result = [];
+    queryResult.entities.forEach((post, i) => {
+      result.push({ ...post, viewed: queryResult.raw[i]?.viewed });
+    });
+    return result;
+  }
+
+  async getViewedPost(user_id: string) {
+    let query = await this.postingRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.footprint', 'footprint')
+      .leftJoinAndSelect('post.image', 'image')
+      .select('post.post_id')
+      .addSelect('image.img_url')
+      .where('footprint.user_id = :user_id', { user_id })
       .getMany();
-    return query;
+
+    const result = [];
+    query.forEach((post) => {
+      result.push({
+        post_id: post.post_id,
+        img_url: post.image[0].img_url,
+      });
+    });
+    return result;
   }
 
   async getPost(
-    author_id: string,
+    reader_id: string,
     post_id: string,
     latitude: number,
     longitude: number,
@@ -109,6 +151,7 @@ forFriend = 0 인 게시물 중에
       .leftJoinAndSelect('post.user_id', 'user')
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
+      .leftJoin('post.footprint', 'footprint')
       .leftJoinAndSelect('post.image', 'image')
       .loadRelationCountAndMap('post.footprint_count', 'post.footprint')
       .loadRelationCountAndMap(
@@ -130,47 +173,97 @@ forFriend = 0 인 게시물 중에
       .andWhere(
         new Brackets((qb) => {
           qb.where(
-            'following.followingUserId = :author_id AND following.relation_type = 1 AND post.forFriend = 1',
-            { author_id },
+            'following.followingUserId = :reader_id AND following.relation_type = 1 AND post.forFriend = 1',
+            { reader_id },
           )
             .orWhere(
-              'follower.followerUserId = :author_id AND follower.relation_type = 1 AND post.forFriend = 1',
-              { author_id },
+              'follower.followerUserId = :reader_id AND follower.relation_type = 1 AND post.forFriend = 1',
+              { reader_id },
             )
             .orWhere('post.forFriend = 0')
-            .orWhere('post.user_id = :author_id', { author_id });
+            .orWhere('post.user_id = :reader_id', { reader_id });
         }),
       )
-
       .addSelect(
-        `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
-        'distance',
-      )
-      .having(`distance <= ${0.05}`)
-      .orderBy('distance', 'ASC');
+        `
+        CASE 
+        WHEN footprint.user_id = "${reader_id}" THEN 1
+        ELSE 0
+        END
+      `,
+        'viewed',
+      );
 
-    let post = await query.getOne();
+    let postWithoutDistance = await query.getRawOne();
+    // console.log(postWithoutDistance);
+    /*
+        50m 밖에서도 조회가능한 게시물
+        1. 본인 게시물일때
+        2. 이미 한번 확인한 게시물일때
+    */
+    if (
+      postWithoutDistance.post_userIdUserId == reader_id ||
+      postWithoutDistance.viewed == 1
+    ) {
+      query
+        .addSelect(
+          `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
+          'distance',
+        )
+        .orderBy('distance', 'ASC');
+    } else {
+      query
+        .addSelect(
+          `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
+          'distance',
+        )
+        .having(`distance <= ${0.05}`)
+        .orderBy('distance', 'ASC');
+    }
 
-    if (post == null)
+    const conditionalPost = await query.getOne();
+    if (conditionalPost == null)
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
         message: '50m 이내 게시물만 조회할 수 있거나, 친구가 아닙니다.',
       });
+
     const distance = (await query.getRawOne())?.distance;
     const emotion = await this.emotionRepository
       .createQueryBuilder('emotion')
       .leftJoin('emotion.user_id', 'user')
       .leftJoin('emotion.post_id', 'post')
-      .where('user.user_id = :user_id', { author_id })
+      .where('user.user_id = :reader_id', { reader_id })
       .where('post.post_id = :post_id', { post_id })
       .getOne();
-    const owner = post.user_id.user_id === author_id;
-    const { user_id, ...result } = post;
+    const owner = conditionalPost.user_id.user_id === reader_id;
+    const { user_id, ...result } = conditionalPost;
 
     /* 발자국 추가 */
-    await this.footprintService.addFootprint(author_id, post_id);
+    await this.footprintService.addFootprint(reader_id, post_id);
 
     return { ...result, emotion: { ...emotion }, distance, owner };
+  }
+
+  async getAllPost(user_id: string) {
+    let query = await this.postingRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user_id', 'user')
+      .leftJoinAndSelect('post.image', 'image')
+      .select('post.post_id')
+      .addSelect('image.img_url')
+      .where('user.user_id = :user_id', { user_id })
+      .getMany();
+
+    // 대표사진만
+    const result = [];
+    query.forEach((post) => {
+      result.push({
+        post_id: post.post_id,
+        img_url: post.image[0].img_url,
+      });
+    });
+    return result;
   }
 
   async deletePost(user_id: string, post_id: string) {
