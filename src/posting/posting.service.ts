@@ -103,7 +103,7 @@ forFriend = 0 인 게시물 중에
         `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
         'distance',
       )
-      .having(`distance <= ${0.5}`)
+      .having(`distance <= ${1}`)
       .orderBy('distance', 'ASC');
 
     let queryResult = await query.getRawAndEntities();
