@@ -120,7 +120,7 @@ forFriend = 0 인 게시물 중에
     return result;
   }
 
-  async getViewedPost(user_id: string) {
+  async getViewedPost(user_id: string, page: number) {
     let query = await this.postingRepository
       .createQueryBuilder('post')
       .leftJoin('post.footprint', 'footprint')
@@ -128,6 +128,8 @@ forFriend = 0 인 게시물 중에
       .select('post.post_id')
       .addSelect('image.img_url')
       .where('footprint.user_id = :user_id', { user_id })
+      .take(15)
+      .skip(15 * page)
       .getMany();
 
     const result = [];
@@ -245,7 +247,7 @@ forFriend = 0 인 게시물 중에
     return { ...result, emotion: { ...emotion }, distance, owner };
   }
 
-  async getAllPost(user_id: string) {
+  async getAllPost(user_id: string, page: number) {
     let query = await this.postingRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user_id', 'user')
@@ -253,6 +255,8 @@ forFriend = 0 인 게시물 중에
       .select('post.post_id')
       .addSelect('image.img_url')
       .where('user.user_id = :user_id', { user_id })
+      .take(15)
+      .skip(15 * page)
       .getMany();
 
     // 대표사진만
