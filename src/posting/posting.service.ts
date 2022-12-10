@@ -126,8 +126,10 @@ forFriend = 0 인 게시물 중에
       .leftJoin('post.footprint', 'footprint')
       .leftJoinAndSelect('post.image', 'image')
       .select('post.post_id')
+      .addSelect('post.created_time')
       .addSelect('image.img_url')
       .where('footprint.user_id = :user_id', { user_id })
+      .orderBy({ 'post.created_time': 'DESC' })
       .take(15)
       .skip(15 * page)
       .getMany();
@@ -253,8 +255,10 @@ forFriend = 0 인 게시물 중에
       .leftJoinAndSelect('post.user_id', 'user')
       .leftJoinAndSelect('post.image', 'image')
       .select('post.post_id')
+      .addSelect('post.created_time')
       .addSelect('image.img_url')
       .where('user.user_id = :user_id', { user_id })
+      .orderBy({ 'post.created_time': 'DESC' })
       .take(15)
       .skip(15 * page)
       .getMany();
