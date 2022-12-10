@@ -3,10 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
-  InternalServerErrorException,
-  Patch,
   Post,
   Req,
   UseGuards,
@@ -49,14 +45,10 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async create(@Req() req, @Body() body: RequestCreateFriendDto) {
-    return await this.friendsService
-      .createRelation(req.user.user_id, body.following_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.createRelation(
+      req.user.user_id,
+      body.following_id,
+    );
   }
 
   @Get()
@@ -69,14 +61,7 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getAllFriend(@Req() req) {
-    return await this.friendsService
-      .getFriendsList(req.user.user_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.getFriendsList(req.user.user_id);
   }
 
   @Post('/accept')
@@ -85,14 +70,10 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async acceptFriendRequest(@Req() req, @Body() body: RequestAcceptFriendDto) {
-    return await this.friendsService
-      .acceptFriendRequest(req.user.user_id, body.friend_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.acceptFriendRequest(
+      req.user.user_id,
+      body.friend_id,
+    );
   }
 
   @Post('/decline')
@@ -104,14 +85,10 @@ export class FriendsController {
     @Req() req,
     @Body() body: RequestDeclineFriendDto,
   ) {
-    return await this.friendsService
-      .declineFriendRequest(req.user.user_id, body.friend_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.declineFriendRequest(
+      req.user.user_id,
+      body.friend_id,
+    );
   }
 
   @Get('/request')
@@ -125,14 +102,7 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getFriendRequest(@Req() req) {
-    return await this.friendsService
-      .getFriendRequestList(req.user.user_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.getFriendRequestList(req.user.user_id);
   }
 
   @Get('/requested')
@@ -146,14 +116,7 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async getRequestedFriendList(@Req() req) {
-    return await this.friendsService
-      .getRequestedFriendList(req.user.user_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.getRequestedFriendList(req.user.user_id);
   }
 
   @Delete()
@@ -162,13 +125,9 @@ export class FriendsController {
   })
   @Roles([Role.User])
   async deleteFriend(@Req() req, @Body() body: RequestDeleteFriendDto) {
-    return await this.friendsService
-      .deleteFriend(req.user.user_id, body.friend_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.friendsService.deleteFriend(
+      req.user.user_id,
+      body.friend_id,
+    );
   }
 }

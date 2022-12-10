@@ -1,25 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 class FriendIdDto {
-    @ApiProperty()
-    friend_id: string
+  @ApiProperty()
+  @IsString()
+  friend_id: string;
 }
 
 export class ResponseCreateFriendDto {
+  @ApiProperty({
+    type: FriendIdDto,
+  })
+  identifiers: FriendIdDto;
 
   @ApiProperty({
-    type: FriendIdDto
+    type: FriendIdDto,
   })
-  identifiers: FriendIdDto
+  generatedMaps: FriendIdDto;
 
   @ApiProperty({
-    type: FriendIdDto
+    type: FriendIdDto,
   })
-  generatedMaps: FriendIdDto
-
-  @ApiProperty({
-    type: FriendIdDto
-  })
-  raw: FriendIdDto
-
+  raw: FriendIdDto;
 }

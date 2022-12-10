@@ -18,7 +18,6 @@ import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
 import { ReportService } from './report.service';
 import { RequestCreateReportDto } from './dto/RequestCreateReport.dto';
-import { RequestDeleteReportDto } from './dto/RequestDeleteReport.dto';
 
 @ApiTags('report')
 @ApiBearerAuth()
@@ -35,13 +34,10 @@ export class ReportController {
   })
   @Roles([Role.User])
   async Report(@Req() req, @Body() body: RequestCreateReportDto) {
-    return await this.reportService
-      .addReport(body.report_type, req.user.user_id, body.post_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.reportService.addReport(
+      body.report_type,
+      req.user.user_id,
+      body.post_id,
+    );
   }
 }

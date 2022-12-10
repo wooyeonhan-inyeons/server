@@ -1,18 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 class UserInfoDto {
   @ApiProperty()
+  @IsString()
   user_id: string;
 
   @ApiProperty()
+  @IsString()
   name: string;
 
   @ApiProperty()
+  @IsString()
   message: string;
 }
 
 class FollowerArrayDto {
   @ApiProperty()
+  @IsString()
   friend_id: string;
 
   @ApiProperty({
@@ -23,6 +28,7 @@ class FollowerArrayDto {
 
 class FollowingArrayDto {
   @ApiProperty()
+  @IsString()
   friend_id: string;
 
   @ApiProperty({

@@ -1,10 +1,9 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AlreadyFriendException } from 'src/exception/AlreadyFriend.exception';
+import { BadRequestException } from 'src/exception/BadRequest.exception';
+import { FriendAlreadyRequestedException } from 'src/exception/FriendAlreadyRequested.exception';
+import { UserNotFoundException } from 'src/exception/UserNotFound.exception';
 import { User } from 'src/user/user.entity';
 import { Brackets, Repository } from 'typeorm';
 import { Friends } from './friends.entity';
@@ -28,10 +27,7 @@ export class FriendsService {
     });
 
     if (follower == null || following == null)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '유저가 존재하지 않습니다.',
-      });
+      throw new UserNotFoundException();
 
     const isRequested = await this.friendsRepository
       .createQueryBuilder('friend')
@@ -40,11 +36,7 @@ export class FriendsService {
       .andWhere('friend.relation_type = 0')
       .getOne();
 
-    if (isRequested != null)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '이미 신청을 보냈습니다.',
-      });
+    if (isRequested != null) throw new FriendAlreadyRequestedException();
 
     const isFriend = await this.friendsRepository
       .createQueryBuilder('friend')
@@ -63,11 +55,7 @@ export class FriendsService {
         }),
       )
       .getOne();
-    if (isFriend != null)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '이미 친구 입니다.',
-      });
+    if (isFriend != null) throw new AlreadyFriendException();
 
     const relation = this.friendsRepository.create({
       follower,
@@ -135,16 +123,9 @@ export class FriendsService {
 
     //신청받은 사람이 아니면 못받음
     if (friend_request.following?.user_id != user_id)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '잘못된 요청입니다.',
-      });
+      throw new BadRequestException();
 
-    if (friend_request?.relation_type == 1)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '이미 친구입니다.',
-      });
+    if (friend_request?.relation_type == 1) throw new AlreadyFriendException();
 
     friend_request.relation_type = 1;
     return await this.friendsRepository.save(friend_request);
@@ -164,10 +145,7 @@ export class FriendsService {
 
     //신청받은 사람이 아니면 못받음
     if (friend_request.following?.user_id != user_id)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '잘못된 요청입니다.',
-      });
+      throw new BadRequestException();
 
     return await this.friendsRepository.delete({ friend_id });
   }
@@ -233,11 +211,7 @@ export class FriendsService {
     });
 
     //요청한 유저가 포함된 관계인지 조회
-    if (!isFollower && !isFollowing)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '잘못된 요청입니다.',
-      });
+    if (!isFollower && !isFollowing) throw new BadRequestException();
 
     return await this.friendsRepository.delete({
       friend_id,

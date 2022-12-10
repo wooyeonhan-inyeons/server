@@ -4,17 +4,14 @@ import {
   Delete,
   Get,
   HttpException,
-  HttpStatus,
-  InternalServerErrorException,
   Post,
   Query,
   Req,
-  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -23,11 +20,18 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { query } from 'express';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { ImageNotExistException } from 'src/exception/ImageNotExist.exception';
 import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
+import { RequestCreatePostingDto } from './dto/RequestCreatePosting.dto';
 import { RequestDeletePostingDto } from './dto/RequestDeletePosting.dto';
+import { RequestGetAllPostDto } from './dto/RequestGetAllPost.dto';
+import { RequestGetOnePostDto } from './dto/RequestGetOnePost.dto';
+import { RequestGetPostByLocationDto } from './dto/RequestGetPostByLocation.dto';
+import { RequestGetViewedPostDto } from './dto/RequestGetViewedPost.dto';
 import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
 import { ResponseGetOnePostDto } from './dto/ResponseGetOnePost.dto';
 import { ResponseGetPostByLocation } from './dto/ResponseGetPostByLocation.dto';
@@ -55,21 +59,21 @@ export class PostingController {
     summary: '우연을 생성합니다.',
   })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        content: { type: 'string' },
-        forFriend: { type: 'integer' },
-        longtitude: { type: 'double' },
-        latitude: { type: 'double' },
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       content: { type: 'string' },
+  //       forFriend: { type: 'integer' },
+  //       longtitude: { type: 'double' },
+  //       latitude: { type: 'double' },
+  //       file: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
   @Roles([Role.User])
   @UseInterceptors(
     FilesInterceptor('file', null, {
@@ -77,30 +81,37 @@ export class PostingController {
         files: 10,
         fileSize: 1024 * 1024 * 20,
       },
+      fileFilter: (request, file, callback) => {
+        if (file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          // 이미지 형식은 jpg, jpeg, png만 허용합니다.
+          callback(null, true);
+        } else {
+          callback(
+            new HttpException(
+              '이미지 형식은 jpg, jpeg, png, gif만 허용합니다.',
+              400,
+            ),
+            false,
+          );
+        }
+      },
     }),
   )
   async create(
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() body,
+    @Body() body: RequestCreatePostingDto,
     @Req() req,
   ) {
-    // console.log(body);
+    if (files.length == 0) throw new ImageNotExistException();
     const user_id = req.user.user_id;
-    return await this.postingService
-      .create(
-        user_id,
-        files,
-        body.content,
-        body.longitude,
-        body.latitude,
-        body.forFriend,
-      )
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.postingService.create(
+      user_id,
+      files,
+      body.content,
+      body.longitude,
+      body.latitude,
+      body.forFriend,
+    );
   }
 
   @Get()
@@ -113,22 +124,15 @@ export class PostingController {
     type: ResponseGetOnePostDto,
   })
   @Roles([Role.User])
-  async getOnePost(
-    @Query('post_id') post_id: string,
-    @Query('latitude') latitude: number,
-    @Query('longitude') longitude: number,
-    @Req() req,
-  ) {
+  async getOnePost(@Query() query: RequestGetOnePostDto, @Req() req) {
     const user_id = req.user.user_id;
-    return await this.postingService
-      .getPost(user_id, post_id, latitude, longitude)
-      .catch((err) => {
-        console.log(err);
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    const { post_id, latitude, longitude } = query;
+    return await this.postingService.getPost(
+      user_id,
+      post_id,
+      latitude,
+      longitude,
+    );
   }
 
   @Get('/all')
@@ -141,14 +145,10 @@ export class PostingController {
     isArray: true,
   })
   @Roles([Role.User])
-  async getAllPost(@Req() req, @Query('page') page: number) {
+  async getAllPost(@Req() req, @Query() query: RequestGetAllPostDto) {
     const user_id = req.user.user_id;
-    return await this.postingService.getAllPost(user_id, page).catch((err) => {
-      throw new InternalServerErrorException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: err.message,
-      });
-    });
+    const { page } = query;
+    return await this.postingService.getAllPost(user_id, page);
   }
 
   @Get('/viewed')
@@ -161,16 +161,10 @@ export class PostingController {
     isArray: true,
   })
   @Roles([Role.User])
-  async getViewedPost(@Req() req, @Query('page') page: number) {
+  async getViewedPost(@Req() req, @Query() query: RequestGetViewedPostDto) {
     const user_id = req.user.user_id;
-    return await this.postingService
-      .getViewedPost(user_id, page)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    const { page } = query;
+    return await this.postingService.getViewedPost(user_id, page);
   }
 
   @Get('/near')
@@ -183,20 +177,12 @@ export class PostingController {
   })
   @Roles([Role.User])
   async getPostByLocation(
-    @Query('latitude') latitude: number,
-    @Query('longitude') longitude: number,
+    @Query() query: RequestGetPostByLocationDto,
     @Req() req,
   ) {
     const user_id = req.user.user_id;
-    return await this.postingService
-      .getNearPost(user_id, latitude, longitude)
-      .catch((err) => {
-        console.log(err);
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    const { latitude, longitude } = query;
+    return await this.postingService.getNearPost(user_id, latitude, longitude);
   }
 
   @Delete()
@@ -206,13 +192,6 @@ export class PostingController {
   @Roles([Role.User])
   async deletePost(@Body() body: RequestDeletePostingDto, @Req() req) {
     const user_id = req.user.user_id;
-    return await this.postingService
-      .deletePost(user_id, body.post_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.postingService.deletePost(user_id, body.post_id);
   }
 }

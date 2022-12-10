@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 
-export class RequestDeleteFriendDto {
+export class RequestGetUserATDto {
   @ApiProperty()
   @IsString()
-  friend_id: string;
+  user_id: string;
 }

@@ -44,14 +44,11 @@ export class EmotionController {
   })
   @Roles([Role.User])
   async create(@Req() req, @Body() body: RequestAddEmotionDto) {
-    return await this.emotionService
-      .addEmotion(req.user.user_id, body.post_id, body.emotion_type)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.emotionService.addEmotion(
+      req.user.user_id,
+      body.post_id,
+      body.emotion_type,
+    );
   }
 
   //delete
@@ -61,14 +58,7 @@ export class EmotionController {
   })
   @Roles([Role.User])
   async deleteEmotion(@Body() body: RequestDeleteEmotionDto) {
-    return await this.emotionService
-      .deleteEmotion(body.emotion_id)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.emotionService.deleteEmotion(body.emotion_id);
   }
 
   //update
@@ -78,13 +68,9 @@ export class EmotionController {
   })
   @Roles([Role.User])
   async updateEmotion(@Body() body: RequestUpdateEmotionDto) {
-    return await this.emotionService
-      .updateEmotion(body.emotion_id, body.emotion_type)
-      .catch((err) => {
-        throw new InternalServerErrorException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: err.message,
-        });
-      });
+    return await this.emotionService.updateEmotion(
+      body.emotion_id,
+      body.emotion_type,
+    );
   }
 }
