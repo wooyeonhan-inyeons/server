@@ -141,9 +141,9 @@ export class PostingController {
     isArray: true,
   })
   @Roles([Role.User])
-  async getAllPost(@Req() req) {
+  async getAllPost(@Req() req, @Query('page') page: number) {
     const user_id = req.user.user_id;
-    return await this.postingService.getAllPost(user_id).catch((err) => {
+    return await this.postingService.getAllPost(user_id, page).catch((err) => {
       throw new InternalServerErrorException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: err.message,
@@ -161,14 +161,16 @@ export class PostingController {
     isArray: true,
   })
   @Roles([Role.User])
-  async getViewedPost(@Req() req) {
+  async getViewedPost(@Req() req, @Query('page') page: number) {
     const user_id = req.user.user_id;
-    return await this.postingService.getViewedPost(user_id).catch((err) => {
-      throw new InternalServerErrorException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: err.message,
+    return await this.postingService
+      .getViewedPost(user_id, page)
+      .catch((err) => {
+        throw new InternalServerErrorException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: err.message,
+        });
       });
-    });
   }
 
   @Get('/near')
