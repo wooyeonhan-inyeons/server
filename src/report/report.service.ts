@@ -1,8 +1,12 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AlreadyReportedException } from 'src/exception/AlreadyReported.exception';
+import { CannotReportOwnPostException } from 'src/exception/CanNotReportOwnPost.exception';
+import { PostNotFoundException } from 'src/exception/PostNotFound.exception';
+import { UserNotFoundException } from 'src/exception/UserNotFound.exception';
 import { Posting } from 'src/posting/posting.entity';
 import { User } from 'src/user/user.entity';
-import { Repository, ReturningStatementNotSupportedError } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Report } from './report.entity';
 
 @Injectable()
@@ -37,25 +41,13 @@ export class ReportService {
     });
 
     // 유저나 게시글이 존재하지 않을 때
-    if (user == null) {
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '유저가 존재하지 않습니다.',
-      });
-    }
-    if (post == null) {
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '게시글이 존재하지 않습니다.',
-      });
-    }
+    if (user == null) throw new UserNotFoundException();
+
+    if (post == null) throw new PostNotFoundException();
 
     // 본인 게시물 신고 미포함
     if (user.user_id == post.user_id.user_id)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '본인 게시물은 신고 할 수 없습니다.',
-      });
+      throw new CannotReportOwnPostException();
 
     // report_type이 달라도 user, post id가 존재하면 이미 신고됨
     const isReported = await this.reportRepository
@@ -65,11 +57,7 @@ export class ReportService {
       .getOne();
 
     // 이미 신고했으면 미포함
-    if (isReported != null)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '이미 신고를 했습니다.',
-      });
+    if (isReported != null) throw new AlreadyReportedException();
 
     // 테이블에 저장
     const rp = this.reportRepository.create({

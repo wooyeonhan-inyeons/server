@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { Posting } from './posting.entity';
@@ -15,7 +10,8 @@ import { FootprintService } from 'src/footprint/footprint.service';
 import { RequestUpdatePostDto } from 'src/admin/dto/RequestUpdatePost.dto';
 import { EmotionService } from 'src/emotion/emotion.service';
 import { Emotion } from 'src/emotion/emotion.entity';
-import { pbkdf2 } from 'crypto';
+import { BadRequestException } from 'src/exception/BadRequest.exception';
+import { PostAccessFailedException } from 'src/exception/PostAccessFailed.exception';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -107,7 +103,7 @@ forFriend = 0 인 게시물 중에
         `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
         'distance',
       )
-      .having(`distance <= ${0.5}`)
+      .having(`distance <= ${1}`)
       .orderBy('distance', 'ASC');
 
     let queryResult = await query.getRawAndEntities();
@@ -126,8 +122,10 @@ forFriend = 0 인 게시물 중에
       .leftJoin('post.footprint', 'footprint')
       .leftJoinAndSelect('post.image', 'image')
       .select('post.post_id')
+      .addSelect('post.created_time')
       .addSelect('image.img_url')
       .where('footprint.user_id = :user_id', { user_id })
+      .orderBy({ 'post.created_time': 'DESC' })
       .take(15)
       .skip(15 * page)
       .getMany();
@@ -224,11 +222,7 @@ forFriend = 0 인 게시물 중에
     }
 
     const conditionalPost = await query.getOne();
-    if (conditionalPost == null)
-      throw new NotFoundException({
-        status: HttpStatus.NOT_FOUND,
-        message: '50m 이내 게시물만 조회할 수 있거나, 친구가 아닙니다.',
-      });
+    if (conditionalPost == null) throw new PostAccessFailedException();
 
     const distance = (await query.getRawOne())?.distance;
     const emotion = await this.emotionRepository
@@ -253,8 +247,10 @@ forFriend = 0 인 게시물 중에
       .leftJoinAndSelect('post.user_id', 'user')
       .leftJoinAndSelect('post.image', 'image')
       .select('post.post_id')
+      .addSelect('post.created_time')
       .addSelect('image.img_url')
       .where('user.user_id = :user_id', { user_id })
+      .orderBy({ 'post.created_time': 'DESC' })
       .take(15)
       .skip(15 * page)
       .getMany();
@@ -277,11 +273,7 @@ forFriend = 0 인 게시물 중에
       .andWhere('post.post_id=:post_id', { post_id })
       .getOne();
 
-    if (query == null)
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '잘못된 요청입니다.',
-      });
+    if (query == null) throw new BadRequestException();
 
     return await this.postingRepository.delete({ post_id });
   }

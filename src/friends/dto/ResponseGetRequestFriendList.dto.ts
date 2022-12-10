@@ -1,20 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 class UserInfoDto {
-    @ApiProperty()
-    user_id: string
+  @ApiProperty()
+  @IsString()
+  user_id: string;
 
-    @ApiProperty()
-    name: string
+  @ApiProperty()
+  @IsString()
+  name: string;
 }
 
 export class ResponseGetRequestFriendListDto {
+  @ApiProperty()
+  @IsString()
+  friend_id: string;
 
-    @ApiProperty()
-    friend_id: string
-
-    @ApiProperty({
-        type: UserInfoDto
-    })
-    following: UserInfoDto
+  @ApiProperty({
+    type: UserInfoDto,
+  })
+  following: UserInfoDto;
 }

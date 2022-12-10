@@ -18,6 +18,8 @@ import { ResponseAdminLoginDto } from './dto/ResponseAdminLogin.dto';
 import { KakaoAuthGuard } from './guards/kakao-auth.guard';
 import { ResponseUserLoginDto } from './dto/ResponseUserLogin.dto';
 import { Response } from 'express';
+import { RequestAdminLoginDto } from './dto/RequestAdminLogin.dto';
+import { NeedKakaoEmailException } from 'src/exception/NeedKakaoEmail.exception';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -30,17 +32,8 @@ export class AuthController {
   @Post('/admin')
   @ApiCreatedResponse({ status: 200, type: ResponseAdminLoginDto })
   @UseGuards(LocalAuthGuard)
-  async login(
-    @Request() req,
-    @Query('username') username: string,
-    @Query('password') password: string,
-  ) {
-    return this.authService.adminLogin(req.user).catch((err) => {
-      throw new InternalServerErrorException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: err.message,
-      });
-    });
+  async login(@Request() req, @Query() query: RequestAdminLoginDto) {
+    return this.authService.adminLogin(req.user);
   }
 
   @Get('/kakao')
@@ -59,9 +52,9 @@ export class AuthController {
   })
   @UseGuards(KakaoAuthGuard)
   async kakaoRedirect(@Req() req, @Res() res: Response) {
-    if (req.user.email == null) {
-      return HttpStatus.NOT_ACCEPTABLE;
-    }
+    // if (req.user.email == null) {
+    //   throw new NeedKakaoEmailException();
+    // }
     const result = await this.authService.userLogin(req.user);
     res.redirect(
       `${process.env.CLIENT_URL}/auth/kakao/redirect?access_token=${result.access_token}`,

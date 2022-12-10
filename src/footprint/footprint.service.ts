@@ -1,9 +1,11 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Footprint } from './footprint.entity';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { Posting } from 'src/posting/posting.entity';
+import { UserNotFoundException } from 'src/exception/UserNotFound.exception';
+import { PostNotFoundException } from 'src/exception/PostNotFound.exception';
 
 @Injectable()
 export class FootprintService {
@@ -33,16 +35,10 @@ export class FootprintService {
     });
 
     if (user == null) {
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '유저가 존재하지 않습니다.',
-      });
+      throw new UserNotFoundException();
     }
     if (post == null) {
-      throw new BadRequestException({
-        status: HttpStatus.BAD_REQUEST,
-        message: '게시글이 존재하지 않습니다.',
-      });
+      throw new PostNotFoundException();
     }
 
     //본인 게시물 조회 미포함
