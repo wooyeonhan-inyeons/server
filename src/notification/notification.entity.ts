@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from 'src/user/user.entity';
 
 @Entity()
@@ -26,4 +32,7 @@ export class Notification {
     1: 친구 요청 받음
   */
   type!: number;
+
+  @CreateDateColumn()
+  created_at!: Date;
 }
