@@ -71,11 +71,13 @@ forFriend = 0 인 게시물 중에
       .leftJoin('user.following', 'following')
       .leftJoin('user.follower', 'follower')
       .leftJoin('post.footprint', 'footprint')
+      .leftJoin('footprint.user_id', 'footprint_user')
       .select('post.post_id')
       .addSelect('post.created_time')
       .addSelect('post.forFriend')
       .addSelect('post.latitude')
       .addSelect('post.longitude')
+      .addSelect('footprint_user')
       .where(
         new Brackets((qb) => {
           qb.where(
@@ -107,11 +109,22 @@ forFriend = 0 인 게시물 중에
       .orderBy('distance', 'ASC');
 
     let queryResult = await query.getRawAndEntities();
-    // const queryContainsViewed = await query.getRawMany();
-    // console.log(await query.getRawAndEntities());
+
     let result = [];
-    queryResult.entities.forEach((post, i) => {
-      result.push({ ...post, viewed: queryResult.raw[i]?.viewed });
+    queryResult.entities.forEach((post_info, i) => {
+      const viewed = queryResult.raw.find((rawPost) => {
+        const post = rawPost.post_post_id;
+        const user = rawPost.footprint_user_user_id;
+        console.log(post, user);
+        return post == post_info.post_id && user == user_id;
+      })
+        ? 1
+        : 0;
+      console.log(viewed);
+      result.push({
+        ...post_info,
+        viewed,
+      });
     });
     return result;
   }
