@@ -243,7 +243,7 @@ forFriend = 0 인 게시물 중에
       .leftJoin('emotion.user_id', 'user')
       .leftJoin('emotion.post_id', 'post')
       .where('user.user_id = :reader_id', { reader_id })
-      .where('post.post_id = :post_id', { post_id })
+      .andWhere('post.post_id = :post_id', { post_id })
       .getOne();
     const owner = conditionalPost.user_id.user_id === reader_id;
     const { user_id, ...result } = conditionalPost;
