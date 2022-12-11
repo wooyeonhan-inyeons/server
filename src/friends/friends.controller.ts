@@ -26,6 +26,7 @@ import { ResponseGetAllFriendDto } from './dto/ResponseGetAllFriend.dto';
 import { ResponseGetFriendRequestDto } from './dto/ResponseGetFriendRequest.dto';
 import { ResponseGetRequestFriendListDto } from './dto/ResponseGetRequestFriendList.dto';
 import { FriendsService } from './friends.service';
+import { ResponseGetFriendInfoSumDto } from './dto/ResponseGetFriendInfoSum.dto';
 
 @ApiTags('friends')
 @ApiBearerAuth()
@@ -74,6 +75,19 @@ export class FriendsController {
       req.user.user_id,
       body.friend_id,
     );
+  }
+
+  @Get('/sum')
+  @ApiOperation({
+    summary: '친구목록 갯수와 친구요청 갯수 반환.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetFriendInfoSumDto,
+  })
+  @Roles([Role.User])
+  async getFriendInfoSum(@Req() req) {
+    return await this.friendsService.getFriendInfoSum(req.user.user_id);
   }
 
   @Post('/decline')

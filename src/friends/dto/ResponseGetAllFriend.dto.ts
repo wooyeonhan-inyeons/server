@@ -34,7 +34,7 @@ class FollowingArrayDto {
   @ApiProperty({
     type: UserInfoDto,
   })
-  follower: UserInfoDto;
+  following: UserInfoDto;
 }
 
 export class ResponseGetAllFriendDto {

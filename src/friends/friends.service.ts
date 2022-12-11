@@ -96,6 +96,7 @@ export class FriendsService {
         following: {
           user_id: true,
           name: true,
+          message: true,
         },
       },
       where: {
@@ -193,6 +194,16 @@ export class FriendsService {
         relation_type: 0,
       },
     });
+  }
+
+  async getFriendInfoSum(user_id: string) {
+    const friend_list = await this.getFriendsList(user_id);
+    const request_list = await this.getFriendRequestList(user_id);
+
+    return {
+      friend_count: friend_list.follower.length + friend_list.following.length,
+      request_count: request_list.length,
+    };
   }
 
   async deleteFriend(user_id: string, friend_id: string) {
