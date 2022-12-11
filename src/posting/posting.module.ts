@@ -9,6 +9,7 @@ import { UserModule } from 'src/user/user.module';
 import { FootprintModule } from 'src/footprint/footprint.module';
 import { EmotionModule } from 'src/emotion/emotion.module';
 import { Emotion } from 'src/emotion/emotion.entity';
+import { FriendsModule } from 'src/friends/friends.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Emotion } from 'src/emotion/emotion.entity';
     UserModule,
     FootprintModule,
     EmotionModule,
+    FriendsModule,
   ],
   controllers: [PostingController],
   providers: [PostingService],

@@ -12,6 +12,7 @@ import { EmotionService } from 'src/emotion/emotion.service';
 import { Emotion } from 'src/emotion/emotion.entity';
 import { BadRequestException } from 'src/exception/BadRequest.exception';
 import { PostAccessFailedException } from 'src/exception/PostAccessFailed.exception';
+import { FriendsService } from 'src/friends/friends.service';
 @Injectable()
 export class PostingService {
   private readonly awsS3: AWS.S3;
@@ -27,6 +28,7 @@ export class PostingService {
     private userService: UserService,
     private footprintService: FootprintService,
     private emotionService: EmotionService,
+    private friendsService: FriendsService,
   ) {}
 
   async create(
@@ -54,6 +56,28 @@ export class PostingService {
     });
 
     return await this.postingRepository.save(post);
+  }
+
+  async getMyPage(user_id: string) {
+    const posting_count = await this.postingRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.user_id', 'user')
+      .where('user.user_id = :user_id', { user_id })
+      .getCount();
+
+    const friend_list = await this.friendsService.getFriendsList(user_id);
+
+    const emotion_count = await this.emotionRepository
+      .createQueryBuilder('emotion')
+      .leftJoin('emotion.user_id', 'user')
+      .where('user.user_id = :user_id', { user_id })
+      .getCount();
+
+    return {
+      posting_count,
+      friend_count: friend_list.follower.length + friend_list.following.length,
+      emotion_count,
+    };
   }
   /*
 
@@ -128,6 +152,72 @@ forFriend = 0 인 게시물 중에
     });
     return result;
   }
+
+  // async getAccessableNearPost(user_id: string, latitude: number, longitude: number) {
+  //   let query = await this.postingRepository
+  //     .createQueryBuilder('post')
+  //     .leftJoin('post.user_id', 'user')
+  //     .leftJoin('user.following', 'following')
+  //     .leftJoin('user.follower', 'follower')
+  //     .leftJoin('post.footprint', 'footprint')
+  //     .leftJoin('footprint.user_id', 'footprint_user')
+  //     .select('post.post_id')
+  //     .addSelect('post.created_time')
+  //     .addSelect('post.content')
+  //     .addSelect('post.forFriend')
+  //     .addSelect('post.latitude')
+  //     .addSelect('post.longitude')
+  //     .addSelect('footprint_user')
+  //     .where(
+  //       new Brackets((qb) => {
+  //         qb.where(
+  //           'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
+  //           { user_id },
+  //         )
+  //           .orWhere(
+  //             'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
+  //             { user_id },
+  //           )
+  //           .orWhere('post.forFriend = 0')
+  //           .orWhere('post.user_id = :user_id', { user_id });
+  //       }),
+  //     )
+  //     .addSelect(
+  //       `
+  //       CASE
+  //       WHEN footprint.user_id = "${user_id}" THEN 1
+  //       ELSE 0
+  //       END
+  //     `,
+  //       'viewed',
+  //     )
+  //     .addSelect(
+  //       `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
+  //       'distance',
+  //     )
+  //     .having(`distance <= ${1}`)
+  //     .orderBy('distance', 'ASC');
+
+  //   let queryResult = await query.getRawAndEntities();
+
+  //   let result = [];
+  //   queryResult.entities.forEach((post_info, i) => {
+  //     const viewed = queryResult.raw.find((rawPost) => {
+  //       const post = rawPost.post_post_id;
+  //       const user = rawPost.footprint_user_user_id;
+  //       console.log(post, user);
+  //       return post == post_info.post_id && user == user_id;
+  //     })
+  //       ? 1
+  //       : 0;
+  //     console.log(viewed);
+  //     result.push({
+  //       ...post_info,
+  //       viewed,
+  //     });
+  //   });
+  //   return result;
+  // }
 
   async getViewedPost(user_id: string, page: number) {
     let query = await this.postingRepository

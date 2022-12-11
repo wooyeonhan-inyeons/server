@@ -35,6 +35,7 @@ import { RequestGetViewedPostDto } from './dto/RequestGetViewedPost.dto';
 import { ResponseGetAllPostDto } from './dto/ResponseGetAllPost.dto';
 import { ResponseGetOnePostDto } from './dto/ResponseGetOnePost.dto';
 import { ResponseGetPostByLocation } from './dto/ResponseGetPostByLocation.dto';
+import { ResponseGetUserInfoDto } from './dto/ResponseGetUserInfo.dto';
 import { ResponseGetViewedPostDto } from './dto/ResponseGetViewedPost.dto';
 import { PostingService } from './posting.service';
 
@@ -102,6 +103,7 @@ export class PostingController {
     @Body() body: RequestCreatePostingDto,
     @Req() req,
   ) {
+    console.log(files);
     if (files.length == 0) throw new ImageNotExistException();
     const user_id = req.user.user_id;
     return await this.postingService.create(
@@ -133,6 +135,19 @@ export class PostingController {
       latitude,
       longitude,
     );
+  }
+
+  @Get('/userInfo')
+  @ApiOperation({
+    summary: '친구 수, 받은 감정 수, 게시물 수 반환',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetUserInfoDto,
+  })
+  @Roles([Role.User])
+  async getMyPage(@Req() req) {
+    return await this.postingService.getMyPage(req.user.user_id);
   }
 
   @Get('/all')
