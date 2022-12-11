@@ -28,6 +28,7 @@ import { Roles } from 'src/libs/decorators/roles.decorator';
 import { Role } from 'src/libs/enums/role.enum';
 import { RequestCreatePostingDto } from './dto/RequestCreatePosting.dto';
 import { RequestDeletePostingDto } from './dto/RequestDeletePosting.dto';
+import { RequestGetAccessablePostDto } from './dto/RequestGetAccessablePost.dto';
 import { RequestGetAllPostDto } from './dto/RequestGetAllPost.dto';
 import { RequestGetOnePostDto } from './dto/RequestGetOnePost.dto';
 import { RequestGetPostByLocationDto } from './dto/RequestGetPostByLocation.dto';
@@ -180,6 +181,29 @@ export class PostingController {
     const user_id = req.user.user_id;
     const { page } = query;
     return await this.postingService.getViewedPost(user_id, page);
+  }
+
+  @Get('/accessable')
+  @ApiOperation({
+    summary: '엑세스 가능한 주변 우연을 전부 조회합니다.',
+  })
+  @ApiCreatedResponse({
+    status: 200,
+    type: ResponseGetOnePostDto,
+    isArray: true,
+  })
+  @Roles([Role.User])
+  async getAccessablePosting(
+    @Req() req,
+    @Query() query: RequestGetAccessablePostDto,
+  ) {
+    const user_id = req.user.user_id;
+    const { latitude, longitude } = query;
+    return await this.postingService.getAccessableNearPost(
+      user_id,
+      latitude,
+      longitude,
+    );
   }
 
   @Get('/near')

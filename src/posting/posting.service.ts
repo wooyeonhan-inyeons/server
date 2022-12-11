@@ -153,71 +153,53 @@ forFriend = 0 인 게시물 중에
     return result;
   }
 
-  // async getAccessableNearPost(user_id: string, latitude: number, longitude: number) {
-  //   let query = await this.postingRepository
-  //     .createQueryBuilder('post')
-  //     .leftJoin('post.user_id', 'user')
-  //     .leftJoin('user.following', 'following')
-  //     .leftJoin('user.follower', 'follower')
-  //     .leftJoin('post.footprint', 'footprint')
-  //     .leftJoin('footprint.user_id', 'footprint_user')
-  //     .select('post.post_id')
-  //     .addSelect('post.created_time')
-  //     .addSelect('post.content')
-  //     .addSelect('post.forFriend')
-  //     .addSelect('post.latitude')
-  //     .addSelect('post.longitude')
-  //     .addSelect('footprint_user')
-  //     .where(
-  //       new Brackets((qb) => {
-  //         qb.where(
-  //           'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
-  //           { user_id },
-  //         )
-  //           .orWhere(
-  //             'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
-  //             { user_id },
-  //           )
-  //           .orWhere('post.forFriend = 0')
-  //           .orWhere('post.user_id = :user_id', { user_id });
-  //       }),
-  //     )
-  //     .addSelect(
-  //       `
-  //       CASE
-  //       WHEN footprint.user_id = "${user_id}" THEN 1
-  //       ELSE 0
-  //       END
-  //     `,
-  //       'viewed',
-  //     )
-  //     .addSelect(
-  //       `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
-  //       'distance',
-  //     )
-  //     .having(`distance <= ${1}`)
-  //     .orderBy('distance', 'ASC');
+  async getAccessableNearPost(
+    user_id: string,
+    latitude: number,
+    longitude: number,
+  ) {
+    let query = await this.postingRepository
+      .createQueryBuilder('post')
+      .leftJoin('post.user_id', 'user')
+      .leftJoin('user.following', 'following')
+      .leftJoin('user.follower', 'follower')
+      .leftJoin('post.footprint', 'footprint')
+      .select('post.post_id')
+      .where(
+        new Brackets((qb) => {
+          qb.where(
+            'following.followingUserId = :user_id AND following.relation_type = 1 AND post.forFriend = 1',
+            { user_id },
+          )
+            .orWhere(
+              'follower.followerUserId = :user_id AND follower.relation_type = 1 AND post.forFriend = 1',
+              { user_id },
+            )
+            .orWhere('post.forFriend = 0')
+            .orWhere('post.user_id = :user_id', { user_id });
+        }),
+      )
+      .addSelect(
+        `6371 * acos(cos(radians(${latitude})) * cos(radians(latitude)) * cos(radians(longitude) - radians(${longitude})) + sin(radians(${latitude})) * sin(radians(latitude)))`,
+        'distance',
+      )
+      .having(`distance <= ${0.05}`)
+      .orderBy('distance', 'ASC');
 
-  //   let queryResult = await query.getRawAndEntities();
+    let queryResult: any = await query.getMany();
+    let result = [];
+    for (let i = 0; i < queryResult.length; i++) {
+      const post_info = await this.getPost(
+        user_id,
+        queryResult[i].post_id,
+        latitude,
+        longitude,
+      );
+      result.push(post_info);
+    }
 
-  //   let result = [];
-  //   queryResult.entities.forEach((post_info, i) => {
-  //     const viewed = queryResult.raw.find((rawPost) => {
-  //       const post = rawPost.post_post_id;
-  //       const user = rawPost.footprint_user_user_id;
-  //       console.log(post, user);
-  //       return post == post_info.post_id && user == user_id;
-  //     })
-  //       ? 1
-  //       : 0;
-  //     console.log(viewed);
-  //     result.push({
-  //       ...post_info,
-  //       viewed,
-  //     });
-  //   });
-  //   return result;
-  // }
+    return result;
+  }
 
   async getViewedPost(user_id: string, page: number) {
     let query = await this.postingRepository
