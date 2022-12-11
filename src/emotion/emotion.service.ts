@@ -6,12 +6,13 @@ import { Repository } from 'typeorm';
 import { Posting } from 'src/posting/posting.entity';
 import { UserNotFoundException } from 'src/exception/UserNotFound.exception';
 import { PostNotFoundException } from 'src/exception/PostNotFound.exception';
+import { EmotionDuplicatedException } from 'src/exception/EmotionDuplicated.exception';
 
 @Injectable()
 export class EmotionService {
   constructor(
     @InjectRepository(Emotion)
-    private EmotionRepository: Repository<Emotion>,
+    private emotionRepository: Repository<Emotion>,
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -25,13 +26,8 @@ export class EmotionService {
     const user = await this.userRepository.findOneBy({
       user_id,
     });
-    const post = await this.postingRepository.findOne({
-      relations: {
-        user_id: true,
-      },
-      where: {
-        post_id,
-      },
+    const post = await this.postingRepository.findOneBy({
+      post_id,
     });
 
     if (user == null) {
@@ -41,28 +37,38 @@ export class EmotionService {
       throw new PostNotFoundException();
     }
 
-    const em = this.EmotionRepository.create({
+    const isExist = await this.emotionRepository
+      .createQueryBuilder('emotion')
+      .leftJoin('emotion.user_id', 'user')
+      .leftJoin('emotion.post_id', 'post')
+      .where('user.user_id=:user_id', { user_id })
+      .andWhere('post.post_id=:post_id', { post_id })
+      .getExists();
+
+    if (isExist) throw new EmotionDuplicatedException();
+
+    const emotion = this.emotionRepository.create({
       user_id: user,
       post_id: post,
       emotion_type: emotion_type,
     });
 
-    return await this.EmotionRepository.save(em);
+    return await this.emotionRepository.save(emotion);
   }
 
   //update
   async updateEmotion(emotion_id: string, emotion_type: number) {
-    const emotion = await this.EmotionRepository.findOneBy({
+    const emotion = await this.emotionRepository.findOneBy({
       emotion_id,
     });
 
     emotion.emotion_type = emotion_type;
 
-    return await this.EmotionRepository.save(emotion);
+    return await this.emotionRepository.save(emotion);
   }
 
   //delete
   async deleteEmotion(emotion_id: string) {
-    return await this.EmotionRepository.delete({ emotion_id });
+    return await this.emotionRepository.delete({ emotion_id });
   }
 }
