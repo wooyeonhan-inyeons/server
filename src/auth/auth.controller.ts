@@ -32,7 +32,7 @@ export class AuthController {
   @Post('/admin')
   @ApiCreatedResponse({ status: 200, type: ResponseAdminLoginDto })
   @UseGuards(LocalAuthGuard)
-  async login(@Request() req, @Query() query: RequestAdminLoginDto) {
+  async login(@Request() req, @Body() body: RequestAdminLoginDto) {
     return this.authService.adminLogin(req.user);
   }
 

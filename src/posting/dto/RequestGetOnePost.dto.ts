@@ -5,7 +5,6 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class RequestGetOnePostDto {
   @ApiProperty()
-  @Type(() => Number)
   @IsString()
   public post_id: string;
 
