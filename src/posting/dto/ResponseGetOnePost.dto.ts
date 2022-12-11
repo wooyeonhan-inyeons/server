@@ -27,6 +27,9 @@ export class ResponseGetOnePostDto {
   created_time: Date;
 
   @ApiProperty()
+  footprint_count: number;
+
+  @ApiProperty()
   forFriend: number;
 
   @ApiProperty()
