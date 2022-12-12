@@ -6,6 +6,8 @@ export class ResponseGetAllReportDto {
   @ApiProperty()
   post_id: string;
   @ApiProperty()
+  content: string;
+  @ApiProperty()
   reporter_name: string;
   @ApiProperty()
   author_name: string;

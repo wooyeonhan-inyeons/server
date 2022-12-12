@@ -79,6 +79,7 @@ export class ReportService {
         },
         post_id: {
           post_id: true,
+          content: true,
           user_id: {
             name: true,
           },
@@ -95,6 +96,7 @@ export class ReportService {
     return result.map((report) => ({
       report_id: report.report_id,
       post_id: report.post_id.post_id,
+      content: report.post_id.content,
       reporter_name: report.user_id.name,
       author_name: report.post_id.user_id.name,
       report_type: report.report_type,
