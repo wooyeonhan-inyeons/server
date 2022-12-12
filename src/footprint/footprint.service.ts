@@ -68,7 +68,6 @@ export class FootprintService {
       .where('footprint.post_id = :post_id', { post_id })
       .where('footprint.user_id = :user_id', { user_id })
       .getExists();
-
     return isExist;
   }
 
