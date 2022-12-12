@@ -323,7 +323,8 @@ forFriend = 0 인 게시물 중에
     const { user_id, ...result } = conditionalPost;
 
     /* 발자국 추가 */
-    await this.footprintService.addFootprint(reader_id, post_id);
+    if (!this.footprintService.isViewed(user_id.user_id, post_id))
+      await this.footprintService.addFootprint(reader_id, post_id);
 
     return { ...result, emotion: { ...emotion }, distance, owner };
   }

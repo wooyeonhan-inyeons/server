@@ -62,6 +62,17 @@ export class FootprintService {
   }
 
   // 발자국 수 조회
+  async isViewed(user_id: string, post_id: string) {
+    const isExist = await this.footprintRepository
+      .createQueryBuilder('footprint')
+      .where('footprint.post_id = :post_id', { post_id })
+      .where('footprint.user_id = :user_id', { user_id })
+      .getExists();
+
+    return isExist;
+  }
+
+  // 발자국 수 조회
   async getFootprints(post_id: string) {
     const count = await this.footprintRepository
       .createQueryBuilder('footprint')
