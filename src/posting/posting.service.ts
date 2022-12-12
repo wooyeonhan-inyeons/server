@@ -70,7 +70,9 @@ export class PostingService {
     const emotion_count = await this.emotionRepository
       .createQueryBuilder('emotion')
       .leftJoin('emotion.user_id', 'user')
-      .where('user.user_id = :user_id', { user_id })
+      .leftJoin('emotion.post_id', 'post')
+      .where('post.user_id=:user_id', { user_id })
+      // .where('user.user_id = :user_id', { user_id })
       .getCount();
 
     return {
