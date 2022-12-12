@@ -66,7 +66,7 @@ export class FootprintService {
     const isExist = await this.footprintRepository
       .createQueryBuilder('footprint')
       .where('footprint.post_id = :post_id', { post_id })
-      .where('footprint.user_id = :user_id', { user_id })
+      .andWhere('footprint.user_id = :user_id', { user_id })
       .getExists();
     return isExist;
   }
